@@ -5,6 +5,8 @@ import {Events} from '../../../model/events.model';
 import {DatePipe} from '@angular/common';
 import {Editor, NgxEditorModule, Toolbar} from 'ngx-editor';
 import {AutoAnimationDirective} from '../../../Directives/auto-Animate.directive';
+import {HotToastService} from '@ngxpert/hot-toast';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-admin-events-management',
@@ -18,9 +20,11 @@ import {AutoAnimationDirective} from '../../../Directives/auto-Animate.directive
   styleUrl: './admin-events-management.component.scss'
 })
 export class AdminEventsManagementComponent implements OnInit, OnDestroy {
-
   private appwrite = inject(AppwriteService);
   private fb = inject(FormBuilder);
+  private toast = inject(HotToastService);
+  private editorSubscription?: Subscription;
+  private editorContent = signal('');
 
   protected events = signal<Events[]>([]);
   protected showModal = signal(false);
@@ -28,6 +32,18 @@ export class AdminEventsManagementComponent implements OnInit, OnDestroy {
   protected editingEvent = signal<Events | null>(null);
   protected imagePreview = signal<string | null>(null);
   protected selectedFile: File | null = null;
+
+  editor!: Editor;
+  toolbar: Toolbar = [
+    ['bold', 'italic'],
+    ['underline', 'strike'],
+    ['code', 'blockquote'],
+    ['ordered_list', 'bullet_list'],
+    [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
+    ['link', 'image'],
+    ['text_color', 'background_color'],
+    ['align_left', 'align_center', 'align_right', 'align_justify'],
+  ];
 
   protected eventForm = this.fb.group({
     title: ['', Validators.required],
@@ -42,21 +58,17 @@ export class AdminEventsManagementComponent implements OnInit, OnDestroy {
     active: [true]
   });
 
-  editor!: Editor;
-  toolbar: Toolbar = [
-    ['bold', 'italic'],
-    ['underline', 'strike'],
-    ['code', 'blockquote'],
-    ['ordered_list', 'bullet_list'],
-    [{ heading: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
-    ['link', 'image'],
-    ['text_color', 'background_color'],
-    ['align_left', 'align_center', 'align_right', 'align_justify'],
-  ];
-
-  async ngOnInit() {
-    await this.loadEvents();
+  ngOnInit() {
     this.editor = new Editor();
+    this.editorSubscription = this.editor.valueChanges.subscribe(content => {
+
+    });
+    this.loadEvents();
+  }
+
+  ngOnDestroy() {
+    this.editorSubscription?.unsubscribe();
+    this.editor.destroy();
   }
 
   protected async loadEvents() {
@@ -65,54 +77,58 @@ export class AdminEventsManagementComponent implements OnInit, OnDestroy {
       this.events.set(response.documents as unknown as Events[]);
     } catch (error) {
       console.error('Error loading events:', error);
+      this.toast.error('Failed to load events');
     }
   }
 
   protected async saveEvent() {
-    if (this.eventForm.invalid) return;
-    this.isSubmitting.set(true);
+    if (this.eventForm.invalid) {
+      this.toast.error('Please fill all required fields');
+      return;
+    }
 
+    this.isSubmitting.set(true);
     try {
       let imageId = this.editingEvent()?.imageId;
+
       if (this.selectedFile) {
-        const uploaded = await this.appwrite.uploadFile(this.selectedFile);
-        imageId = uploaded.$id;
+        const uploadedFile = await this.appwrite.uploadFile(this.selectedFile);
+        imageId = uploadedFile.$id;
       }
 
+      const formValue = this.eventForm.value;
+
       const eventData = {
-        ...this.eventForm.value,
+        title: formValue.title,
+        description: this.editorContent(),
+        startDate: formValue.startDate,
+        endDate: formValue.endDate,
+        location: formValue.location,
+        category: formValue.category,
+        organizer: formValue.organizer,
         imageId,
-        slug: this.eventForm.value.title?.toLowerCase().replace(/\s+/g, '-')
+        ticketLink: formValue.ticketLink,
+        featured: formValue.featured,
+        active: formValue.active,
+        slug: formValue.title?.toLowerCase().replace(/\s+/g, '-')
       };
 
       if (this.editingEvent()) {
         await this.appwrite.updateEvent(this.editingEvent()!.$id!, eventData);
+        this.toast.success('Event updated successfully');
       } else {
         await this.appwrite.createEvent(eventData);
+        this.toast.success('Event created successfully');
       }
 
       await this.loadEvents();
       this.closeForm();
+    } catch (error) {
+      console.error('Error saving event:', error);
+      this.toast.error('Failed to save event');
     } finally {
       this.isSubmitting.set(false);
     }
-  }
-
-
-  protected openForm() {
-    this.eventForm.reset({ active: true, featured: false });
-    this.editingEvent.set(null);
-    this.imagePreview.set(null);
-    this.selectedFile = null;
-    this.showModal.set(true);
-  }
-
-  protected closeForm() {
-    this.showModal.set(false);
-    this.eventForm.reset();
-    this.editingEvent.set(null);
-    this.imagePreview.set(null);
-    this.selectedFile = null;
   }
 
   protected editEvent(event: Events) {
@@ -131,6 +147,9 @@ export class AdminEventsManagementComponent implements OnInit, OnDestroy {
       active: event.active
     });
 
+    this.editor.setContent(event.description);
+    this.editorContent.set(event.description);
+
     if (event.imageId) {
       this.imagePreview.set(this.getImageUrl(event.imageId));
     }
@@ -138,9 +157,25 @@ export class AdminEventsManagementComponent implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
+  protected openForm() {
+    this.eventForm.reset({ active: true, featured: false });
+    this.editingEvent.set(null);
+    this.imagePreview.set(null);
+    this.selectedFile = null;
+    this.editor.setContent('');
+    this.editorContent.set('');
+    this.showModal.set(true);
+  }
 
-
-
+  protected closeForm() {
+    this.showModal.set(false);
+    this.eventForm.reset();
+    this.editingEvent.set(null);
+    this.imagePreview.set(null);
+    this.selectedFile = null;
+    this.editor.setContent('');
+    this.editorContent.set('');
+  }
 
   protected onImageSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -175,13 +210,10 @@ export class AdminEventsManagementComponent implements OnInit, OnDestroy {
     try {
       await this.appwrite.deleteEvent(eventId);
       await this.loadEvents();
+      this.toast.success('Event deleted successfully');
     } catch (error) {
       console.error('Error deleting event:', error);
+      this.toast.error('Failed to delete event');
     }
   }
-
-  ngOnDestroy() {
-    this.editor.destroy();
-  }
-
 }

@@ -25,9 +25,6 @@ export class ContactComponent {
 
   protected settings = this.siteService.settings;
 
-  constructor() {
-    console.log(this.settings()?.phone);
-  }
 
 
 

@@ -108,23 +108,6 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
     }
   }
 
-
-  protected openForm() {
-    this.newsForm.reset({ active: true, featured: false });
-    this.editingNews.set(null);
-    this.imagePreview.set(null);
-    this.selectedFile = null;
-    this.showModal.set(true);
-  }
-
-  protected closeForm() {
-    this.showModal.set(false);
-    this.newsForm.reset();
-    this.editingNews.set(null);
-    this.imagePreview.set(null);
-    this.selectedFile = null;
-  }
-
   protected editNews(news: News) {
     this.editingNews.set(news);
 
@@ -145,6 +128,25 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
 
     this.showModal.set(true);
   }
+
+
+  protected openForm() {
+    this.newsForm.reset({ active: true, featured: false });
+    this.editingNews.set(null);
+    this.imagePreview.set(null);
+    this.selectedFile = null;
+    this.showModal.set(true);
+  }
+
+  protected closeForm() {
+    this.showModal.set(false);
+    this.newsForm.reset();
+    this.editingNews.set(null);
+    this.imagePreview.set(null);
+    this.selectedFile = null;
+  }
+
+
 
 
   protected onImageSelected(event: Event) {

@@ -60,7 +60,7 @@ export class AdminHeaderComponent {
     const success = await this.appwrite.logout();
     if (success) {
       this.toast.success('Logged out successfully');
-      await this.router.navigate(['/admin/login']);
+      await this.router.navigate(['/']);
     } else {
       this.toast.error('Failed to logout');
     }
