@@ -106,13 +106,14 @@
               </div>
 
               <div class="NgxEditor__Wrapper">
-                <label class="block text-sm font-medium text-text-secondary mb-2 ">Content</label>
-                <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" > </ngx-editor-menu>
+                <label class="block text-sm font-medium text-text-secondary mb-2">Content</label>
+                <ngx-editor-menu [editor]="editor" [toolbar]="toolbar"> </ngx-editor-menu>
 
                 <ngx-editor
                   [editor]="editor"
                   formControlName="content"
                   [placeholder]="'Type your content here...'"
+                  [ngModel]="editorContent().html"
                   class="rounded-lg overflow-hidden border border-background-card/50">
                 </ngx-editor>
               </div>

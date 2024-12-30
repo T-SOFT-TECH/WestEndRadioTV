@@ -5,9 +5,17 @@ import {AppwriteService} from '../../../services/appwrite.service';
 import {DatePipe} from '@angular/common';
 import {Editor, NgxEditorModule, Toolbar} from 'ngx-editor';
 import {AutoAnimationDirective} from '../../../Directives/auto-Animate.directive';
+import {HotToastService} from '@ngxpert/hot-toast';
+import {Subscription} from 'rxjs';
+
+interface EditorState {
+  html: string;
+  json?: any;
+}
 
 @Component({
   selector: 'app-admin-news-management',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     DatePipe,
@@ -18,9 +26,11 @@ import {AutoAnimationDirective} from '../../../Directives/auto-Animate.directive
   styleUrl: './admin-news-management.component.scss'
 })
 export class AdminNewsManagementComponent implements OnInit, OnDestroy {
-
   private appwrite = inject(AppwriteService);
   private fb = inject(FormBuilder);
+  private toast = inject(HotToastService);
+  private editorSubscription?: Subscription;
+  protected editorContent = signal<EditorState>({ html: '', json: null });
 
   protected news = signal<News[]>([]);
   protected showModal = signal(false);
@@ -52,9 +62,22 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
     active: [true]
   });
 
-  async ngOnInit() {
-    await this.loadNews();
+  ngOnInit() {
     this.editor = new Editor();
+    this.editorSubscription = this.newsForm.get('content')?.valueChanges.subscribe(value => {
+      if (typeof value === 'string') {
+        this.editorContent.set({
+          html: value,
+          json: this.editor.view?.state.doc.toJSON()
+        });
+      }
+    });
+    this.loadNews();
+  }
+
+  ngOnDestroy() {
+    this.editorSubscription?.unsubscribe();
+    this.editor.destroy();
   }
 
   protected async loadNews() {
@@ -63,13 +86,17 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
       this.news.set(response.documents as unknown as News[]);
     } catch (error) {
       console.error('Error loading news:', error);
+      this.toast.error('Failed to load news');
     }
   }
 
   protected async saveNews() {
-    if (this.newsForm.invalid) return;
-    this.isSubmitting.set(true);
+    if (this.newsForm.invalid) {
+      this.toast.error('Please fill all required fields');
+      return;
+    }
 
+    this.isSubmitting.set(true);
     try {
       let imageId = this.editingNews()?.imageId;
       if (this.selectedFile) {
@@ -77,34 +104,37 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
         imageId = uploaded.$id;
       }
 
+      const formValue = this.newsForm.value;
+      const content = this.editorContent().html || formValue.content;
+
       const newsData = {
-        ...this.newsForm.value,
+        title: formValue.title,
+        content: content,
+        summary: formValue.summary,
+        author: formValue.author,
+        publishDate: formValue.publishDate,
         imageId,
-        slug: this.newsForm.value.title?.toLowerCase().replace(/\s+/g, '-'),
-        tags: this.newsForm.value.tags?.split(',').map(t => t.trim())
+        tags: formValue.tags?.split(',').map(t => t.trim()) || [],
+        featured: formValue.featured,
+        active: formValue.active,
+        slug: formValue.title?.toLowerCase().replace(/\s+/g, '-')
       };
 
       if (this.editingNews()) {
         await this.appwrite.updateNews(this.editingNews()!.$id!, newsData);
+        this.toast.success('News updated successfully');
       } else {
         await this.appwrite.createNews(newsData);
+        this.toast.success('News created successfully');
       }
 
       await this.loadNews();
       this.closeForm();
+    } catch (error) {
+      console.error('Error saving news:', error);
+      this.toast.error('Failed to save news');
     } finally {
       this.isSubmitting.set(false);
-    }
-  }
-
-  protected async deleteNews(newsId: string) {
-    if (!confirm('Are you sure you want to delete this article?')) return;
-
-    try {
-      await this.appwrite.deleteNews(newsId);
-      await this.loadNews();
-    } catch (error) {
-      console.error('Error deleting news:', error);
     }
   }
 
@@ -122,6 +152,12 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
       active: news.active
     });
 
+    this.editor.setContent(news.content);
+    this.editorContent.set({
+      html: news.content,
+      json: this.editor.view?.state.doc.toJSON()
+    });
+
     if (news.imageId) {
       this.imagePreview.set(this.getImageUrl(news.imageId));
     }
@@ -129,12 +165,13 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
     this.showModal.set(true);
   }
 
-
   protected openForm() {
     this.newsForm.reset({ active: true, featured: false });
     this.editingNews.set(null);
     this.imagePreview.set(null);
     this.selectedFile = null;
+    this.editor.setContent('');
+    this.editorContent.set({ html: '', json: null });
     this.showModal.set(true);
   }
 
@@ -144,10 +181,9 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
     this.editingNews.set(null);
     this.imagePreview.set(null);
     this.selectedFile = null;
+    this.editor.setContent('');
+    this.editorContent.set({ html: '', json: null });
   }
-
-
-
 
   protected onImageSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -176,8 +212,16 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
     return this.appwrite.getFileView(imageId);
   }
 
-  ngOnDestroy() {
-    this.editor.destroy();
-  }
+  protected async deleteNews(newsId: string) {
+    if (!confirm('Are you sure you want to delete this article?')) return;
 
+    try {
+      await this.appwrite.deleteNews(newsId);
+      await this.loadNews();
+      this.toast.success('News deleted successfully');
+    } catch (error) {
+      console.error('Error deleting news:', error);
+      this.toast.error('Failed to delete news');
+    }
+  }
 }
