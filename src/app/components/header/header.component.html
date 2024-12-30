@@ -1,0 +1,145 @@
+<!-- header.component.html -->
+<header role="banner"
+        class="fixed w-full top-0 z-50 transition-all duration-300"
+        [ngClass]="isScrolled() ? 'bg-background-surface/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'">
+  <div class="container mx-auto px-4">
+    <nav class="flex items-center justify-between h-20" aria-label="Main navigation">
+      <!-- Logo Section -->
+      <a [routerLink]="['/']" class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 via-primary-400 to-secondary-500 p-[2px]">
+          <div class="w-full h-full rounded-[10px] bg-background-dark flex items-center justify-center">
+            <span class="text-2xl font-bold bg-gradient-to-br from-primary-400 to-secondary-400 bg-clip-text text-transparent">W</span>
+          </div>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            {{settings()?.stationName}}
+          </h1>
+          <span class="text-xs text-text-secondary block max-w-[150px] truncate">
+    {{settings()?.stationSlogan}}
+  </span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+
+      <div class="hidden lg:flex items-center gap-8">
+        @for (item of navItems; track item.path) {
+          <a [routerLink]="[item.path]"
+             routerLinkActive="bg-primary-500/20 text-primary-400"
+             [routerLinkActiveOptions]="{ exact: item.exact }"
+             class="relative py-2 px-4 rounded-lg text-text-primary hover:text-primary-400 transition-all duration-300">
+            {{ item.label }}
+          </a>
+        }
+      </div>
+
+      <!-- Live Radio Button -->
+      <div class="hidden lg:flex items-center gap-4">
+        <!-- Search Button -->
+        <button class="p-2 rounded-lg hover:bg-background-dark/50 text-text-secondary hover:text-primary-400 transition-colors" (click)="openSearchDialog()">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+
+        <button (click)="toggleLiveStream()"
+                class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl hover:from-primary-600 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 group">
+          <div class="relative flex items-center justify-center w-2 h-2">
+            @if (isBuffering()) {
+              <!-- Buffering Animation -->
+              <div class="absolute w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+            } @else {
+              <!-- Normal Live Indicator -->
+              <div class="absolute w-2 h-2 bg-white rounded-full" [class.animate-ping]="!isPlaying()"></div>
+              <div class="relative w-2 h-2 bg-white rounded-full"></div>
+            }
+          </div>
+          <span class="text-white font-medium">
+    {{ isBuffering() ? 'Buffering...' : (isPlaying() ? 'Stop Stream' : 'Listen Live') }}
+  </span>
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button (click)="toggleMobileMenu()"
+              class="lg:hidden p-2 rounded-lg hover:bg-background-dark/50 text-text-secondary hover:text-primary-400 transition-colors z-50"
+              [attr.aria-expanded]="isMobileMenuOpen()"
+              aria-label="Toggle menu">
+        @if (!isMobileMenuOpen()) {
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        } @else {
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        }
+      </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    @if (isMobileMenuOpen()) {
+      <!-- Overlay -->
+      <div class="fixed inset-0 bg-background-dark/80 backdrop-blur-sm z-40 lg:hidden"
+           (click)="closeMobileMenu()"
+           @fadeInOut>
+      </div>
+
+      <!-- Sidebar Menu -->
+      <div class="fixed inset-y-0 right-0 w-72 bg-background-surface/95 backdrop-blur-sm border-r border-background-card/30 z-50 lg:hidden"
+           @slideInOutRight>
+        <!-- Logo Section -->
+        <div class="p-6 border-b border-background-card/30">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 via-primary-400 to-secondary-500 p-[2px]">
+              <div class="w-full h-full rounded-[10px] bg-background-dark flex items-center justify-center">
+                <span class="text-xl font-bold bg-gradient-to-br from-primary-400 to-secondary-400 bg-clip-text text-transparent">W</span>
+              </div>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+                {{settings()?.stationName}}
+              </h1>
+              <span class="text-xs text-text-secondary block max-w-[150px] truncate">
+            {{settings()?.stationSlogan}}
+          </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="py-4 px-2" autoAnimate>
+          @for (item of navItems; track item.path) {
+            <a [routerLink]="[item.path]"
+               routerLinkActive="bg-primary-500/20 text-primary-400"
+               [routerLinkActiveOptions]="{ exact: item.exact }"
+               (click)="closeMobileMenu()"
+               class="flex items-center gap-2 px-4 py-3 rounded-lg text-text-primary hover:bg-background-card/50 transition-all duration-300 mb-1">
+              {{ item.label }}
+            </a>
+          }
+        </div>
+
+        <!-- Live Radio Button -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-background-card/30">
+          <button (click)="toggleLiveStream()"
+                  class="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl text-white font-medium">
+            <div class="relative flex items-center justify-center w-2 h-2">
+              @if (isBuffering()) {
+                <div class="absolute w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+              } @else {
+                <div class="absolute w-2 h-2 bg-white rounded-full" [class.animate-ping]="!isPlaying()"></div>
+                <div class="relative w-2 h-2 bg-white rounded-full"></div>
+              }
+            </div>
+            {{ isBuffering() ? 'Buffering...' : (isPlaying() ? 'Stop Stream' : 'Listen Live') }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</header>
+
+<!-- Spacer to prevent content from hiding under fixed header -->
+<div class="h-20"></div>

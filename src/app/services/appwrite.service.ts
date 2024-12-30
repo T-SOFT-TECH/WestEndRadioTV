@@ -10,7 +10,7 @@ import {Contact} from '../model/contact.model';
 export class AppwriteService {
 
   appwrite = {
-    endpoint: 'http://localhost/v1',
+    endpoint: 'https://appwrite.tsoft-tech.dev/v1',
     projectId: 'westend-radio-tv',
     bucketId: 'media',
     databaseId: 'westendradiotv-db'

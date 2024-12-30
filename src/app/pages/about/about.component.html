@@ -1,0 +1,168 @@
+<!-- Hero Section with Parallax -->
+<section class="relative min-h-[70vh] flex items-center overflow-hidden">
+  <div class="absolute inset-0">
+    <img src="assets/img/about-bg.jpg"
+         alt="Studio"
+         class="w-full h-full object-cover scale-110 origin-center parallax">
+    <div class="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-background-dark/50 to-background-dark"></div>
+  </div>
+
+  <div class="w-full px-4 relative">
+    <div class="max-w-3xl mx-auto text-center">
+          <span class="inline-block px-4 py-1 bg-primary-500/20 text-primary-400 rounded-full text-sm font-medium mb-6 ">
+            ABOUT US
+          </span>
+      <h1 class="text-7xl font-bold text-white mb-6 text-center">The Voice of Your Community</h1>
+      <p class="text-xl text-text-secondary leading-relaxed text-center">
+        Broadcasting live from the heart of the city, bringing you the best in music, entertainment, and community engagement.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-20 bg-background-surface/50 backdrop-blur-sm">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      @for (stat of stats; track stat.label) {
+        <div class="text-center group">
+          <div class="relative w-24 h-24 mx-auto mb-4">
+            <div class="absolute inset-0 bg-primary-500/20 rounded-2xl group-hover:scale-110 transition-transform"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-primary-400">
+              <span class="text-4xl">{{stat.icon}}</span>
+            </div>
+          </div>
+          <div class="text-4xl font-bold text-white mb-2" [countUp]="stat.value">0</div>
+          <p class="text-text-secondary">{{stat.label}}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Our Story -->
+<section class="py-20">
+  <div class="container mx-auto px-4">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <h2 class="text-4xl font-bold text-white mb-6">Our Story</h2>
+        <div class="prose prose-lg prose-invert">
+          <p>Founded in 2020, WestEnd Radio TV has grown from a small community radio station to one of the region's most influential media platforms.</p>
+          <p>Our mission is to provide quality entertainment while serving as a bridge that connects communities, cultures, and ideas.</p>
+        </div>
+
+        <!-- Timeline -->
+        <div class="mt-12 space-y-8">
+          @for (milestone of milestones; track milestone.year) {
+            <div class="relative pl-8 border-l border-primary-500/30 group">
+              <div class="absolute left-0 top-0 w-4 h-4 -translate-x-[9px] rounded-full bg-background-dark border-2 border-primary-500 group-hover:scale-150 transition-transform"></div>
+              <span class="text-primary-400 font-medium">{{milestone.year}}</span>
+              <p class="text-white mt-1">{{milestone.event}}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Studio Images Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        @for (image of studioImages; track image.id) {
+          <div class="relative aspect-square group {{image?.description}}"
+               (mouseenter)="showImageDetail(image.id)"
+               (mouseleave)="hideImageDetail()">
+            <img [src]="image.url"
+                 [alt]="image.title"
+                 class="w-full h-full object-cover rounded-2xl transition-transform duration-500 group-hover:scale-105">
+            @if (currentImageId() === image.id) {
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent rounded-2xl">
+                <div class="absolute bottom-0 p-4">
+                  <h3 class="text-white font-medium">{{image.title}}</h3>
+                  <p class="text-text-secondary text-sm">{{image.description}}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-20 bg-background-surface/50 backdrop-blur-sm">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold text-white mb-4">Meet Our Team</h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        The talented individuals who make the magic happen behind the microphone and beyond.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      @for (member of team; track member.id) {
+        <div class="group">
+          <div class="relative aspect-[4/5] rounded-2xl overflow-hidden mb-4">
+            <img [src]="member.image"
+                 [alt]="member.name"
+                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="absolute bottom-0 p-4 w-full">
+                <div class="flex justify-center space-x-4">
+                  @for (social of member.socials; track social.platform) {
+                    <a [href]="social.url"
+                       class="text-white/70 hover:text-white transition-colors"
+                       target="_blank">
+                      <i [class]="social.icon"></i>
+                    </a>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3 class="text-white font-bold text-center">{{member.name}}</h3>
+          <p class="text-text-secondary text-center">{{member.role}}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Partners Section -->
+<section class="py-20">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold text-white mb-4">Our Partners</h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        Proud to work with these amazing organizations.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap justify-center items-center gap-12">
+      @for (partner of partners; track partner.id) {
+        <img [src]="partner.logo"
+             [alt]="partner.name"
+             class="h-12 opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Contact CTA -->
+<section class="relative py-20 overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-secondary-500/20"></div>
+
+  <div class="container mx-auto px-4 relative">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-4xl font-bold text-white mb-6">Want to Work With Us?</h2>
+      <p class="text-text-secondary mb-8">
+        Whether you're interested in advertising, partnerships, or joining our team, we'd love to hear from you.
+      </p>
+      <a routerLink="/contact"
+         class="inline-flex items-center gap-2 px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-xl transition-colors">
+        Get in Touch
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

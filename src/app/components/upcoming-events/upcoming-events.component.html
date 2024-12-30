@@ -1,0 +1,113 @@
+<section class="relative min-h-screen py-32 overflow-hidden">
+  <!-- Background -->
+  <div class="absolute inset-0">
+    <img src="assets/img/concert-bg.webp" alt="Concert" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-sky-500/70 backdrop-blur-sm"></div>
+  </div>
+
+  <div class="container mx-auto px-4 relative">
+    <!-- Header -->
+    <div class="max-w-4xl mx-auto text-center mb-24">
+      <h2 class="text-7xl font-bold text-white mb-6">Next Event</h2>
+
+      @let event = targetEvent();
+
+      @if (event) {
+        <h3 class="text-4xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent mb-12">
+          {{event.title}}
+        </h3>
+      }
+
+      <!-- Countdown -->
+      <div class="grid grid-cols-4 gap-8">
+        <div class="bg-background-surface/20 backdrop-blur p-6 rounded-2xl">
+          <span class="text-5xl font-bold text-white block mb-2">{{countdown().days}}</span>
+          <span class="text-text-secondary uppercase tracking-wider">Days</span>
+        </div>
+        <div class="bg-background-surface/20 backdrop-blur p-6 rounded-2xl">
+          <span class="text-5xl font-bold text-white block mb-2">{{countdown().hours}}</span>
+          <span class="text-text-secondary uppercase tracking-wider">Hours</span>
+        </div>
+        <div class="bg-background-surface/20 backdrop-blur p-6 rounded-2xl">
+          <span class="text-5xl font-bold text-white block mb-2">{{countdown().minutes}}</span>
+          <span class="text-text-secondary uppercase tracking-wider">Minutes</span>
+        </div>
+        <div class="bg-background-surface/20 backdrop-blur p-6 rounded-2xl">
+          <span class="text-5xl font-bold text-white block mb-2">{{countdown().seconds}}</span>
+          <span class="text-text-secondary uppercase tracking-wider">Seconds</span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="space-y-6 max-w-6xl mx-auto">
+      @for (event of events(); track event.$id) {
+        <div class="group relative h-48 bg-gradient-to-r from-background-surface/30 to-background-surface/10
+               backdrop-blur-sm rounded-2xl overflow-hidden hover:from-background-surface/40
+               hover:to-background-surface/20 transition-all duration-300 border border-white/5">
+          <!-- Background Image -->
+          @if (event.imageId) {
+            <div class="absolute left-0 w-2/5 h-full">
+              <img [src]="siteService.getImageUrl(event.imageId)"
+                   [alt]="event.title"
+                   class="w-full h-full object-cover object-center">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent to-background-surface/95"></div>
+            </div>
+          }
+
+          <!-- Date -->
+          <div class="absolute left-12 top-1/2 -translate-y-1/2 text-center z-10">
+            <span class="text-5xl font-bold text-white block leading-none">{{event.startDate | date:'dd'}}</span>
+            <span class="text-xl text-primary-400 uppercase block">{{event.startDate | date:'MMM'}}</span>
+            <span class="text-sm text-text-secondary block mt-1">{{event.startDate | date:'yyyy'}}</span>
+          </div>
+
+          <!-- Content -->
+          <div class="ml-[45%] flex items-center justify-between h-full p-8">
+            <div class="flex-1 mr-8">
+              <div class="flex items-center gap-4 mb-3">
+                @if (event.category) {
+                  <span class="px-3 py-1 bg-primary-500/20 text-primary-400 text-sm rounded-full">
+               {{event.category}}
+             </span>
+                }
+                <span class="text-white text-lg">{{event.startDate | date:'shortTime'}}</span>
+              </div>
+
+              <h3 class="text-xl font-bold text-white group-hover:text-primary-400 transition-colors mb-4 leading-tight">
+                {{event.title}}
+              </h3>
+
+              <div class="flex flex-col gap-2 text-black
+">
+                <div class="flex items-start gap-2">
+                  <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  </svg>
+                  <span class="line-clamp-2">{{event.location}}</span>
+                </div>
+
+                @if (event.organizer) {
+                  <div class="flex items-start gap-2">
+                    <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span class="line-clamp-1">{{event.organizer}}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <a [routerLink]="['/events', event.slug]"
+               class="px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-full transition-colors whitespace-nowrap">
+              MORE INFO
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</section>

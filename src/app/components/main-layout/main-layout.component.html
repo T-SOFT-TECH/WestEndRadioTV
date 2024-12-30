@@ -1,0 +1,42 @@
+<!-- Loading Indicator -->
+@if (isLoading()) {
+  <div class="fixed top-0 left-0 right-0 z-50">
+    <app-loading-indicator />
+  </div>
+}
+
+<!-- Main Container -->
+<div class="min-h-screen flex flex-col bg-background-dark text-text-primary">
+  <!-- Header -->
+  <app-header />
+
+  <!-- Main Content -->
+  <main class="flex-grow">
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="container mx-auto px-4 py-4">
+        <div class="bg-status-error/10 border border-status-error text-status-error px-4 py-3 rounded-lg">
+          {{ errorMessage() }}
+        </div>
+      </div>
+    }
+
+    <!-- Page Content -->
+    <div class=" mx-auto ">
+      <router-outlet
+        (activate)="onActivate($event)"
+        (deactivate)="onDeactivate($event)" />
+    </div>
+  </main>
+
+  <!-- CTA -->
+  <app-cta/>
+
+  <!-- Footer -->
+  <app-footer />
+
+  <!-- Global Player -->
+  @if (showPlayer()) {
+    <app-global-player class="fixed bottom-0 left-0 right-0 z-40" />
+  }
+</div>

@@ -1,0 +1,21 @@
+:host ::ng-deep {
+  .cdk-drag-preview {
+    cursor: move !important;
+  }
+
+  .cdk-drag-handle {
+    cursor: move;
+  }
+
+  .cdk-drag-preview {
+    transform-origin: center center !important;
+  }
+
+  .cdk-drop-list-dragging .cdkDropListEmpty {
+    background-color: transparent !important;
+  }
+}
+
+
+
+

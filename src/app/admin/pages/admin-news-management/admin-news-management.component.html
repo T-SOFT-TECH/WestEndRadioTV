@@ -1,0 +1,193 @@
+<!-- admin-news.component.html -->
+<div class="space-y-8">
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-text-primary">News Articles</h2>
+      <p class="text-text-secondary">Manage news articles and updates</p>
+    </div>
+
+    <button (click)="openForm()"
+            class="px-4 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Article
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (item of news(); track item.$id) {
+      <div class="group bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl overflow-hidden hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all duration-300">
+        <div class="relative aspect-video">
+          @if (item.imageId) {
+            <img [src]="getImageUrl(item.imageId)"
+                 [alt]="item.title"
+                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+          }
+          <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+          <div class="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button (click)="editNews(item)"
+                    class="p-2 rounded-lg bg-primary-500/90 hover:bg-primary-500 text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+            <button (click)="deleteNews(item.$id!)"
+                    class="p-2 rounded-lg bg-status-error/90 hover:bg-status-error text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="absolute top-4 left-4">
+            @if (item.featured) {
+              <span class="px-2 py-1 rounded-full text-xs bg-primary-500/90 text-white">Featured</span>
+            }
+          </div>
+        </div>
+
+        <div class="p-6">
+          <div class="flex items-center gap-2 text-sm text-text-secondary mb-3">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span>{{item.publishDate | date}}</span>
+            <span class="text-text-secondary/50">•</span>
+            <span>{{item.author}}</span>
+          </div>
+
+          <h3 class="text-xl font-bold text-white group-hover:text-primary-400 transition-colors mb-2">{{item.title}}</h3>
+          <p class="text-text-secondary line-clamp-2">{{item.summary}}</p>
+
+          <div class="mt-4 flex flex-wrap gap-1">
+            @for (tag of item.tags; track tag) {
+              <span class="px-2 py-1 rounded-md text-xs bg-background-card text-text-secondary">{{tag}}</span>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<div autoAnimate>
+  @if (showModal()) {
+    <div class="fixed inset-0 bg-background-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" autoAnimate>
+      <div class="bg-gradient-to-br from-background-dark via-background-surface/90 to-background-dark border border-background-card/30 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl">
+        <div class="p-6 border-b border-background-card/30">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-text-primary">
+              {{ editingNews() ? 'Edit Article' : 'Add New Article' }}
+            </h3>
+            <button (click)="closeForm()"
+                    class="p-2 rounded-lg hover:bg-background-card text-text-secondary hover:text-text-primary transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-6 overflow-y-auto max-h-[calc(80vh-130px)]">
+          <form [formGroup]="newsForm" class="space-y-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-text-primary mb-1">Title</label>
+                <input type="text" formControlName="title"
+                       class="w-full px-4 py-2.5 bg-background-dark border border-background-card/50 rounded-lg text-text-primary">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-text-primary mb-1">Summary</label>
+                <textarea formControlName="summary" rows="2"
+                          class="w-full px-4 py-2.5 bg-background-dark border border-background-card/50 rounded-lg text-text-primary"></textarea>
+              </div>
+
+              <div class="NgxEditor__Wrapper">
+                <label class="block text-sm font-medium text-text-secondary mb-2 ">Content</label>
+                <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" > </ngx-editor-menu>
+
+                <ngx-editor
+                  [editor]="editor"
+                  formControlName="content"
+                  [placeholder]="'Type your content here...'"
+                  class="rounded-lg overflow-hidden border border-background-card/50">
+                </ngx-editor>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-text-primary mb-1">Author</label>
+                  <input type="text" formControlName="author"
+                         class="w-full px-4 py-2.5 bg-background-dark border border-background-card/50 rounded-lg text-text-primary">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-text-primary mb-1">Publish Date</label>
+                  <input type="datetime-local" formControlName="publishDate"
+                         class="w-full px-4 py-2.5 bg-background-dark border border-background-card/50 rounded-lg text-text-primary">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-text-primary mb-1">Tags (comma separated)</label>
+                <input type="text" formControlName="tags"
+                       class="w-full px-4 py-2.5 bg-background-dark border border-background-card/50 rounded-lg text-text-primary">
+              </div>
+
+              <div class="relative">
+                <label class="block text-sm font-medium text-text-primary mb-2">Article Image</label>
+                @if (imagePreview()) {
+                  <div class="relative aspect-video rounded-lg overflow-hidden bg-background-dark">
+                    <img [src]="imagePreview()" alt="Preview" class="w-full h-full object-cover">
+                    <button (click)="removeImage($event)"
+                            class="absolute top-2 right-2 p-2 rounded-lg bg-status-error/90 text-white hover:bg-status-error transition-colors">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="aspect-video rounded-lg border-2 border-dashed border-background-card/50 flex items-center justify-center bg-background-dark hover:bg-background-card/10 transition-colors cursor-pointer">
+                    <div class="text-center">
+                      <svg class="w-8 h-8 mx-auto text-text-secondary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                      <p class="mt-2 text-sm text-text-secondary">Click to upload image</p>
+                    </div>
+                  </div>
+                }
+                <input type="file" (change)="onImageSelected($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+              </div>
+
+              <div>
+                <label class="relative inline-flex items-center">
+                  <input type="checkbox" formControlName="featured" class="sr-only peer">
+                  <div class="w-11 h-6 bg-background-dark border border-background-card/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                  <span class="ml-3 text-sm text-text-primary">Featured Article</span>
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="p-6 border-t border-background-card/30 bg-background-dark/50">
+          <div class="flex justify-end gap-3">
+            <button (click)="closeForm()"
+                    class="px-4 py-2 rounded-lg border border-background-card text-text-primary hover:bg-background-card transition-colors">
+              Cancel
+            </button>
+            <button (click)="saveNews()"
+                    [disabled]="newsForm.invalid || isSubmitting()"
+                    class="px-4 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ isSubmitting() ? 'Saving...' : (editingNews() ? 'Update Article' : 'Create Article') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

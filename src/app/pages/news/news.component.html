@@ -1,0 +1,83 @@
+<div class="bg-background-surface/50 backdrop-blur-sm border-b border-white/10">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex flex-wrap gap-6 items-center justify-between">
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <input type="search"
+                 [(ngModel)]="searchTerm"
+                 placeholder="Search articles..."
+                 class="w-full px-4 py-3 bg-background-dark/50 border border-white/10 rounded-xl
+                           text-white placeholder:text-text-secondary focus:outline-none focus:border-primary-500">
+          <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary"
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+      </div>
+
+      <select [(ngModel)]="selectedTag"
+              class="px-4 py-3 bg-background-dark/50 border border-white/10 rounded-xl
+                        text-white focus:outline-none focus:border-primary-500">
+        <option value="">All Tags</option>
+        @for (tag of allTags(); track tag) {
+          <option [value]="tag">{{tag}}</option>
+        }
+      </select>
+
+      <select [(ngModel)]="sortBy"
+              class="px-4 py-3 bg-background-dark/50 border border-white/10 rounded-xl
+                        text-white focus:outline-none focus:border-primary-500">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" autoAnimate>
+    @for (article of filteredNews(); track article.$id) {
+      <div class="group bg-background-surface/50 backdrop-blur-sm rounded-2xl overflow-hidden
+                     border border-white/5 hover:border-primary-500/20 transition-all duration-300">
+        @if (article.imageId) {
+          <div class="aspect-[16/9] relative overflow-hidden">
+            <img [src]="siteService.getImageUrl(article.imageId)"
+                 [alt]="article.title"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-background-dark/90 to-transparent">
+              <div class="absolute bottom-4 left-4 flex flex-wrap gap-2">
+                @for (tag of article.tags.slice(0,2); track tag) {
+                  <span class="px-3 py-1 text-sm font-medium rounded-full bg-primary-500/90 text-white">
+                       {{tag}}
+                     </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-3 text-sm text-text-secondary">
+            <span>{{article.publishDate | date:'mediumDate'}}</span>
+            <span>•</span>
+            <span>By {{article.author}}</span>
+          </div>
+
+          <h3 class="text-xl font-bold text-white group-hover:text-primary-400 transition-colors mb-3">
+            <a [routerLink]="['/news', article.slug]">{{article.title}}</a>
+          </h3>
+
+          <p class="text-text-secondary line-clamp-2 mb-4">{{article.summary}}</p>
+
+          <a [routerLink]="['/news', article.slug]"
+             class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-500">
+            Read More
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+</div>

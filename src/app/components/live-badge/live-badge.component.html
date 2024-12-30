@@ -1,0 +1,14 @@
+<div class="flex items-center gap-2"
+     [class.opacity-50]="!isLive">
+  <div class="relative">
+    <div class="absolute w-2 h-2 bg-status-live rounded-full"
+         [class.animate-ping]="isLive">
+    </div>
+    <div class="w-2 h-2 bg-status-live rounded-full"></div>
+  </div>
+  <span class="text-sm font-medium"
+        [class.text-status-live]="isLive"
+        [class.text-text-secondary]="!isLive">
+        {{ isLive ? 'LIVE' : 'OFFLINE' }}
+      </span>
+</div>

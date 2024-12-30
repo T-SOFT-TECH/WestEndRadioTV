@@ -1,0 +1,101 @@
+<!-- Mobile Menu Button -->
+<button
+  (click)="toggleSidebar()"
+  class="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-background-surface border border-background-card text-text-primary">
+  @if (isSidebarOpen()) {
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  } @else {
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  }
+</button>
+
+<!-- Overlay -->
+@if (isSidebarOpen()) {
+  <div
+    class="fixed inset-0 bg-background-dark/50 backdrop-blur-sm lg:hidden z-40"
+    (click)="closeSidebar()">
+  </div>
+}
+
+<!-- Sidebar -->
+<aside
+  class="fixed left-0 top-0 h-screen bg-gradient-to-b from-background-dark via-background-surface to-background-dark border-r border-background-card/30 backdrop-blur-sm z-40
+            transition-transform duration-300 lg:translate-x-0 w-72"
+  [class.translate-x-0]="isSidebarOpen()"
+  [class.-translate-x-full]="!isSidebarOpen()">
+
+  <!-- Logo Section -->
+  <div class="p-6 mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 via-primary-400 to-secondary-500 p-[2px]">
+        <div class="w-full h-full rounded-[10px] bg-background-dark flex items-center justify-center">
+          <span class="text-lg font-bold bg-gradient-to-br from-primary-400 to-secondary-400 bg-clip-text text-transparent">W</span>
+        </div>
+      </div>
+      <div>
+        <h1 class="font-bold text-lg bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+          WestEnd Admin
+        </h1>
+        <span class="text-xs text-text-secondary">Broadcasting Console</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="px-4">
+    <div class="space-y-3">
+      @for (item of menuItems; track item.path) {
+        <a [routerLink]="[item.path]"
+           routerLinkActive="bg-primary-500 text-text-primary shadow-lg shadow-primary-500/20 border-transparent"
+           [routerLinkActiveOptions]="{ exact: item.exact }"
+           (click)="onMenuItemClick()"
+           class="flex items-center gap-3 px-4 py-3 rounded-xl border border-background-card/50 bg-background-card/30 backdrop-blur-sm
+                     hover:bg-primary-500/10 hover:border-primary-500/50 hover:shadow-lg hover:shadow-primary-500/10
+                     transition-all duration-300">
+          <!-- Icon -->
+          <div class="text-xl w-8 h-8 flex items-center justify-center"><span [innerHTML]="item.icon"></span> </div>
+
+          <!-- Label -->
+          <span class="font-medium">{{ item.label }}</span>
+        </a>
+      }
+    </div>
+  </div>
+
+  <!-- Status Section -->
+  <!-- Status Section -->
+  <div class="absolute bottom-0 left-0 right-0 p-4 space-y-3">
+    <!-- Live Status Card -->
+    <div class="p-4 rounded-xl border border-background-card/50 bg-background-card/30 backdrop-blur-sm">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-status-live/10 flex items-center justify-center">
+          <div class="w-2 h-2 rounded-full bg-status-live animate-pulse"></div>
+        </div>
+        <div>
+          <h3 class="text-sm font-medium text-text-primary">Live Status</h3>
+          <p class="text-xs text-text-secondary">Broadcasting</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between text-xs text-text-secondary">
+        <span>Uptime: {{ sidebarStats().uptime }}</span>
+        <span>Listeners: {{ sidebarStats().listeners }}</span>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="p-3 rounded-xl border border-primary-500/20 bg-primary-500/5">
+        <div class="text-sm font-medium text-text-secondary mb-1">Shows</div>
+        <div class="text-xl font-bold text-primary-400">{{ sidebarStats().showsCount }}</div>
+      </div>
+      <div class="p-3 rounded-xl border border-secondary-500/20 bg-secondary-500/5">
+        <div class="text-sm font-medium text-text-secondary mb-1">Tracks</div>
+        <div class="text-xl font-bold text-secondary-400">{{ sidebarStats().tracksCount }}</div>
+      </div>
+    </div>
+  </div>
+</aside>

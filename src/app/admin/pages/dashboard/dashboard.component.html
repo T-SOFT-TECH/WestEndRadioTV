@@ -1,0 +1,199 @@
+<div class="space-y-8">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row justify-between gap-4 bg-gradient-to-r from-primary-500/10 via-background-surface to-secondary-500/10 p-6 rounded-xl border border-background-card/30">
+    <div class="space-y-1">
+      <h2 class="text-2xl font-bold text-primary-400">Dashboard</h2>
+      <p class="text-text-secondary">Welcome back to WestEnd Radio Admin</p>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Total Shows -->
+    <div class="bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-text-secondary text-sm">Total Shows</p>
+          <h3 class="text-3xl font-bold mt-2 text-text-primary">{{ stats()?.totalShows || 0 }}</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center">
+          <svg class="w-6 h-6 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs">
+        <span class="text-text-secondary">{{ stats()?.activeShows || 0 }} Active</span>
+      </div>
+    </div>
+
+    <!-- Total Tracks -->
+    <div class="bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-text-secondary text-sm">Total Tracks</p>
+          <h3 class="text-3xl font-bold mt-2 text-text-primary">{{ stats()?.totalTracks || 0 }}</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-secondary-500/10 flex items-center justify-center">
+          <svg class="w-6 h-6 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs">
+        <span class="text-text-secondary">Last added {{ lastTrackAdded() }}</span>
+      </div>
+    </div>
+
+    <!-- Live Listeners -->
+    <div class="bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-text-secondary text-sm">Live Listeners</p>
+          <h3 class="text-3xl font-bold mt-2 text-text-primary">{{ stats()?.liveListeners || 0 }}</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-status-live/10 flex items-center justify-center">
+          <div class="w-2 h-2 rounded-full bg-status-live animate-ping"></div>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs text-text-secondary">
+        Peak today: {{ peakListeners() }}
+      </div>
+    </div>
+
+    <!-- Stream Status -->
+    <div class="bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="text-text-secondary text-sm">Stream Status</p>
+          <h3 class="text-lg font-medium mt-2 text-status-live">Live</h3>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-status-live/10 flex items-center justify-center">
+          <svg class="w-6 h-6 text-status-live" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"/>
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-xs">
+        <span class="text-status-live">Excellent</span>
+        <span class="mx-2 text-text-secondary">•</span>
+        <span class="text-text-secondary">Uptime: 12h 30m</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Current Show -->
+    <div class="lg:col-span-2">
+      <div class="bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl overflow-hidden">
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-text-primary">Now Playing</h3>
+        </div>
+        @if (currentShow()) {
+          <div class="px-6 pb-6">
+            <div class="flex items-center gap-4">
+              <div class="w-24 h-24 rounded-xl bg-background-card overflow-hidden flex-shrink-0">
+                @if (currentShow()?.imageId) {
+                  <img [src]="getImageUrl(currentShow()!.imageId!)"
+                       [alt]="currentShow()?.title"
+                       class="w-full h-full object-cover">
+                }
+              </div>
+              <div>
+                <h4 class="font-medium text-text-primary">{{ currentShow()?.title }}</h4>
+                <p class="text-text-secondary mt-1">with {{ currentShow()?.host }}</p>
+                <p class="text-sm text-text-secondary mt-2">
+                  {{ formatTime(currentShow()?.startTime!) }} - {{ formatTime(currentShow()?.endTime!) }}
+                </p>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="px-6 pb-6">
+            <div class="rounded-xl border-2 border-dashed border-background-card/50 p-6 flex items-center justify-center">
+              <p class="text-text-secondary">No show currently playing</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-gradient-to-br from-background-dark via-background-surface/80 to-background-dark border border-background-card/30 rounded-xl p-6">
+      <h3 class="text-lg font-semibold text-text-primary mb-4">Quick Actions</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <a routerLink="/admin/shows"
+           class="p-4 rounded-xl bg-background-card hover:bg-background-card/70 transition-colors group">
+          <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center mb-3 group-hover:bg-primary-500/20 transition-colors">
+            <svg class="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <h4 class="font-medium text-sm text-text-primary">New Show</h4>
+        </a>
+
+        <a routerLink="/admin/tracks"
+           class="p-4 rounded-xl bg-background-card hover:bg-background-card/70 transition-colors group">
+          <div class="w-10 h-10 rounded-lg bg-secondary-500/10 flex items-center justify-center mb-3 group-hover:bg-secondary-500/20 transition-colors">
+            <svg class="w-5 h-5 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <h4 class="font-medium text-sm text-text-primary">Add Track</h4>
+        </a>
+
+        <a routerLink="/admin/schedule"
+           class="p-4 rounded-xl bg-background-card hover:bg-background-card/70 transition-colors group">
+          <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center mb-3 group-hover:bg-primary-500/20 transition-colors">
+            <svg class="w-5 h-5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h4 class="font-medium text-sm text-text-primary">Schedule</h4>
+        </a>
+
+        <a routerLink="/admin/settings"
+           class="p-4 rounded-xl bg-background-card hover:bg-background-card/70 transition-colors group">
+          <div class="w-10 h-10 rounded-lg bg-secondary-500/10 flex items-center justify-center mb-3 group-hover:bg-secondary-500/20 transition-colors">
+            <svg class="w-5 h-5 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <h4 class="font-medium text-sm text-text-primary">Settings</h4>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Tracks (continued) -->
+    <div class="divide-y divide-background-card/30">
+      @for (track of recentTracks(); track track.$id) {
+        <div class="px-6 py-4 flex items-center justify-between hover:bg-background-card/5 transition-colors">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-lg bg-background-card overflow-hidden flex-shrink-0">
+              @if (track.coverImageId) {
+                <img [src]="getImageUrl(track.coverImageId)"
+                     [alt]="track.title"
+                     class="w-full h-full object-cover">
+              }
+            </div>
+            <div>
+              <h4 class="font-medium text-text-primary">{{ track.title }}</h4>
+              <p class="text-sm text-text-secondary">{{ track.artist }}</p>
+              <p class="text-xs text-text-secondary mt-0.5">{{ track.showTitle }}</p>
+            </div>
+          </div>
+          <div class="text-right">
+        <span class="text-xs text-text-secondary">
+          {{ formatTimeAgo(track.playedAt) }}
+        </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

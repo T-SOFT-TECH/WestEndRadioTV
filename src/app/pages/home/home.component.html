@@ -1,0 +1,68 @@
+<div class="flex flex-col w-full">
+  <!-- Hero Section -->
+  <div class="relative h-dvh w-full">
+    <!-- Background with Overlay -->
+    <div class="absolute inset-0 w-full">
+      <img [src]="heroImage()"
+           class="w-full h-full object-cover"
+           alt="Background">
+      <div class="absolute inset-0 bg-gradient-to-b from-background-dark/90 via-background-dark/70 to-background-dark"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative h-full w-full flex items-center justify-center text-center px-4">
+      <div class="space-y-8">
+
+        <!-- Station Name -->
+        <h1 class="text-6xl md:text-8xl font-bold text-text-primary">
+         <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+           {{ siteSettings()?.stationName }}
+         </span>
+        </h1>
+
+        <!-- Station Tag -->
+        <div class="inline-block px-6 py-2 bg-primary-500/20 backdrop-blur-sm rounded-full">
+          <span class="text-primary-400 font-medium">{{ siteSettings()?.stationSlogan }}</span>
+        </div>
+
+
+
+        <!-- Play Button -->
+        <div class="my-12">
+          <button (click)="toggleStream()"
+                  class="group relative w-24 h-24 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 p-[2px] hover:scale-110 transition-transform duration-300">
+            <div class="w-full h-full rounded-full bg-background-dark/90 flex items-center justify-center">
+              @if (audioService.audioState().isBuffering) {
+                <!-- Buffering Spinner with corrected styling -->
+                <div class="w-12 h-12 border-4 border-text-primary/20 border-t-text-primary rounded-full animate-spin"></div>
+              } @else if (audioService.audioState().isPlaying) {
+                <!-- Pause Icon -->
+                <svg class="w-8 h-8 text-text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M10 4H6v16h4V4zm8 0h-4v16h4V4z" fill="currentColor"/>
+                </svg>
+              } @else {
+                <!-- Play Icon -->
+                <svg class="w-8 h-8 text-text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M8 5v14l11-7z" fill="currentColor"/>
+                </svg>
+              }
+            </div>
+
+            <!-- Animated Ring -->
+            @if (!audioService.audioState().isBuffering) {
+              <div class="absolute -inset-4 bg-primary-500/20 rounded-full animate-ping"></div>
+            } @else {
+              <div class="absolute -inset-4 bg-primary-500/20 rounded-full animate-pulse"></div>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Shows Section -->
+<app-featured-shows/>
+  <app-weekly-schedules/>
+  <app-upcoming-events/>
+  <app-latest-news/>
+</div>
