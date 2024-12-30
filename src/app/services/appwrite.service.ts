@@ -267,6 +267,7 @@ export class AppwriteService {
     );
   }
 
+  // Create News Method
   async createNews(data: any) {
     return await this.databases.createDocument(
       this.appwrite.databaseId,
@@ -276,6 +277,7 @@ export class AppwriteService {
     );
   }
 
+  // Update News Method
   async updateNews(newsId: string, data: any) {
     return await this.databases.updateDocument(
       this.appwrite.databaseId,
@@ -285,6 +287,7 @@ export class AppwriteService {
     );
   }
 
+  // Delete News Method
   async deleteNews(newsId: string) {
     return await this.databases.deleteDocument(
       this.appwrite.databaseId,
@@ -293,7 +296,7 @@ export class AppwriteService {
     );
   }
 
-// AppwriteService
+// Get related content methods
   async getRelatedEvents(category: string, currentEventId: string) {
     return await this.databases.listDocuments(
       this.appwrite.databaseId,
@@ -316,7 +319,7 @@ export class AppwriteService {
         Query.equal('category', [category]),
         Query.notEqual('$id', currentNewsId),
         Query.equal('active', true),
-        Query.orderDesc('startDate'),
+        Query.orderDesc('publishDate'),
         Query.limit(3)
       ]
     );
