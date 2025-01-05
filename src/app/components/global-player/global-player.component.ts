@@ -25,6 +25,7 @@ export class GlobalPlayerComponent {
   currentShow = computed(() => this.appState.currentShow());
   protected siteSettings = this.siteService.settings;
 
+
   constructor() {
     effect(() => {
       const streamUrl = this.siteSettings()?.streamUrl;

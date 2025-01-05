@@ -23,7 +23,7 @@
 
       <!-- Desktop Navigation -->
 
-      <div class="hidden lg:flex items-center gap-8">
+      <div class="hidden lg:flex items-center gap-8" autoAnimate>
         @for (item of navItems; track item.path) {
           <a [routerLink]="[item.path]"
              routerLinkActive="bg-primary-500/20 text-primary-400"
@@ -45,7 +45,7 @@
 
         <button (click)="toggleLiveStream()"
                 class="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-xl hover:from-primary-600 hover:to-secondary-600 transition-all duration-300 transform hover:scale-105 group">
-          <div class="relative flex items-center justify-center w-2 h-2">
+          <div class="relative flex items-center justify-center w-2 h-2" autoAnimate>
             @if (isBuffering()) {
               <!-- Buffering Animation -->
               <div class="absolute w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin"></div>

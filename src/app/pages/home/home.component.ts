@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, signal} from '@angular/core';
+import {Component, computed, effect, HostListener, inject, signal} from '@angular/core';
 import {SiteService} from '../../services/site.service';
 import {AudioService} from '../../services/audio.service';
 import {AppwriteService} from '../../services/appwrite.service';
@@ -22,6 +22,13 @@ import {UpcomingEventsComponent} from '../../components/upcoming-events/upcoming
 })
 export class HomeComponent {
 
+  protected windowWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1920);
+
+  @HostListener('window:resize')
+  onResize() {
+    this.windowWidth.set(window.innerWidth);
+  }
+
   protected siteService = inject(SiteService);
   protected appwrite = inject(AppwriteService);
   protected audioService = inject(AudioService);
@@ -34,15 +41,18 @@ export class HomeComponent {
 
 
   constructor() {
-
+console.dir(this.heroImage())
   }
 
   protected heroImage = computed(() => {
     const settings = this.siteSettings();
-    return settings?.heroImage ?
-      this.siteService.getImageUrl(settings.heroImage) :
-      'assets/img/default-hero.jpg';
+    if (!settings?.heroImage) return 'assets/img/Hero.webp';
+
+    const imageUrl = this.siteService.getImageUrl(settings.heroImage);
+    console.log('Hero image URL:', imageUrl); // Debug URL
+    return imageUrl;
   });
+
 
 
   toggleStream(): void {

@@ -1,114 +1,79 @@
-import { animate, style, transition, trigger } from '@angular/animations';
+import {animate, animation, style, transition, trigger, useAnimation} from "@angular/animations";
 
-// Fade animations
+
+export const fadeIn = animation([
+  style({opacity: 0}),
+  animate("300ms", style({opacity: 1}))
+]);
+
+export const fadeOut = animation([
+  style({opacity: 1}),
+  animate("300ms", style({opacity: 0}))
+]);
+
 export const fadeInOut = trigger('fadeInOut', [
-  transition(':enter', [
-    style({ opacity: 0, transform: 'translateY(-10px)' }),
-    animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-  ]),
-  transition(':leave', [
-    animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
-  ])
+  transition('void => *', useAnimation(fadeIn)),
+  transition('* => void', useAnimation(fadeOut))
 ]);
 
-export const fadeSimple = trigger('fadeSimple', [
-  transition(':enter', [
-    style({ opacity: 0 }),
-    animate('300ms ease-out', style({ opacity: 1 }))
-  ]),
-  transition(':leave', [
-    animate('300ms ease-in', style({ opacity: 0 }))
-  ])
+
+export const dropDown = animation([
+  style({top: "-100%"}),
+  animate("300ms", style({top: "0%"}))
 ]);
 
-// Slide animations
-export const slideInOutLeft = trigger('slideInOutLeft', [
-  transition(':enter', [
-    style({ transform: 'translateX(-100%)' }),
-    animate('300ms ease-out', style({ transform: 'translateX(0)' }))
-  ]),
-  transition(':leave', [
-    animate('300ms ease-in', style({ transform: 'translateX(-100%)' }))
-  ])
+export const dropUp = animation([
+  animate("300ms", style({top: "-10%"}))
+]);
+
+export const dropDownUp = trigger('dropDownUp', [
+  transition('void => *', useAnimation(dropDown)),
+  transition('* => void', useAnimation(dropUp))
+]);
+
+
+export const foldUp = animation([
+  style({height: "*", overflow: "hidden"}),
+  animate("200ms", style({height: "0"}))
+]);
+
+export const foldDown = animation([
+  style({height: "0", overflow: "hidden"}),
+  animate("200ms", style({height: "*"}))
+]);
+
+export const foldUpDown = trigger('foldUpDown', [
+  transition('void => *', useAnimation(foldDown)),
+  transition('* => void', useAnimation(foldUp))
+]);
+
+
+export const zoomIn = animation([
+  style({ transform: 'scale(0.5)', opacity: 0 }),
+  animate('300ms ease-out', style({ transform: 'scale(1)', opacity: 1 }))
+]);
+
+export const zoomOut = animation([
+  style({ transform: 'scale(1)', opacity: 1 }),
+  animate('300ms ease-in', style({ transform: 'scale(0.5)', opacity: 0 }))
+]);
+
+export const zoomInOut = trigger('zoomInOut', [
+  transition('void => *', useAnimation(zoomIn)),
+  transition('* => void', useAnimation(zoomOut))
+]);
+
+export const slideInRight = animation([
+  style({ transform: 'translateX(100%)' }),
+  animate('300ms ease-out', style({ transform: 'translateX(0)' }))
+]);
+
+export const slideOutRight = animation([
+  style({ transform: 'translateX(0)' }),
+  animate('300ms ease-in', style({ transform: 'translateX(100%)' }))
 ]);
 
 export const slideInOutRight = trigger('slideInOutRight', [
-  transition(':enter', [
-    style({ transform: 'translateX(100%)' }),
-    animate('300ms ease-out', style({ transform: 'translateX(0)' }))
-  ]),
-  transition(':leave', [
-    animate('300ms ease-in', style({ transform: 'translateX(100%)' }))
-  ])
+  transition('void => *', useAnimation(slideInRight)),
+  transition('* => void', useAnimation(slideOutRight))
 ]);
-
-export const slideInOutTop = trigger('slideInOutTop', [
-  transition(':enter', [
-    style({ transform: 'translateY(-100%)' }),
-    animate('300ms ease-out', style({ transform: 'translateY(0)' }))
-  ]),
-  transition(':leave', [
-    animate('300ms ease-in', style({ transform: 'translateY(-100%)' }))
-  ])
-]);
-
-export const slideInOutBottom = trigger('slideInOutBottom', [
-  transition(':enter', [
-    style({ transform: 'translateY(100%)' }),
-    animate('300ms ease-out', style({ transform: 'translateY(0)' }))
-  ]),
-  transition(':leave', [
-    animate('300ms ease-in', style({ transform: 'translateY(100%)' }))
-  ])
-]);
-
-// Scale animations
-export const scaleInOut = trigger('scaleInOut', [
-  transition(':enter', [
-    style({ transform: 'scale(0.95)', opacity: 0 }),
-    animate('200ms ease-out', style({ transform: 'scale(1)', opacity: 1 }))
-  ]),
-  transition(':leave', [
-    animate('200ms ease-in', style({ transform: 'scale(0.95)', opacity: 0 }))
-  ])
-]);
-
-// Combined animations
-export const modalAnimation = trigger('modalAnimation', [
-  transition(':enter', [
-    style({ opacity: 0 }),
-    animate('300ms ease-out', style({ opacity: 1 })),
-    style({ transform: 'scale(0.95)' }),
-    animate('200ms ease-out', style({ transform: 'scale(1)' }))
-  ]),
-  transition(':leave', [
-    animate('200ms ease-in', style({ transform: 'scale(0.95)' })),
-    animate('200ms ease-in', style({ opacity: 0 }))
-  ])
-]);
-
-// Helper function to create custom duration animations
-export const createFadeAnimation = (duration: string) =>
-  trigger('fade', [
-    transition(':enter', [
-      style({ opacity: 0 }),
-      animate(`${duration} ease-out`, style({ opacity: 1 }))
-    ]),
-    transition(':leave', [
-      animate(`${duration} ease-in`, style({ opacity: 0 }))
-    ])
-  ]);
-
-// Constants for common timings
-export const AnimationDurations = {
-  FAST: '150ms',
-  NORMAL: '300ms',
-  SLOW: '500ms'
-} as const;
-
-// Constants for common easings
-export const AnimationEasings = {
-  EASE_OUT: 'ease-out',
-  EASE_IN: 'ease-in',
-  EASE_IN_OUT: 'ease-in-out'
-} as const;

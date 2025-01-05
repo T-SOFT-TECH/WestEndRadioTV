@@ -3,13 +3,15 @@ import {Show} from '../../model/show.model';
 import {SiteService} from '../../services/site.service';
 import {RouterLink} from '@angular/router';
 import {AutoAnimationDirective} from '../../Directives/auto-Animate.directive';
+import {ScrollAnimationDirective} from '../../Directives/scroll-observer.directive';
 
 
 @Component({
   selector: 'app-weekly-schedules',
   imports: [
     RouterLink,
-    AutoAnimationDirective
+    AutoAnimationDirective,
+    ScrollAnimationDirective
 
   ],
   templateUrl: './weekly-schedules.component.html',

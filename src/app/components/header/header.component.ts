@@ -1,7 +1,8 @@
 import {Component, computed, effect, HostListener, inject, PLATFORM_ID, signal} from '@angular/core';
-import {isPlatformBrowser, NgClass, ViewportScroller} from '@angular/common';
+import {isPlatformBrowser, NgClass,} from '@angular/common';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
-import {fadeInOut, slideInOutLeft, slideInOutRight} from '../../animations/animations';
+import {fadeInOut, slideInOutRight,} from '../../animations/animations'
+
 
 import {AudioService} from '../../services/audio.service';
 import {SiteService} from '../../services/site.service';
@@ -24,7 +25,8 @@ interface NavItem {
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
-  animations: [fadeInOut, slideInOutRight],
+  animations: [slideInOutRight, fadeInOut]
+
 
 })
 export class HeaderComponent {

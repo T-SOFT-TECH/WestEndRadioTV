@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
-import {Client, Databases, Storage, Account, Query, ID} from 'appwrite';
+import {Injectable} from '@angular/core';
+import {Account, Client, Databases, ID, ImageGravity, Query, Storage} from 'appwrite';
 import {Contact} from '../model/contact.model';
-
 
 
 @Injectable({
@@ -407,5 +406,19 @@ export class AppwriteService {
       throw error;
     }
   }
+
+// appwrite.service.ts
+  getOptimizedFileView(fileId: string, width: number): string {
+    console.log('Generating URL for:', fileId, width); // Debug
+
+    return this.storage.getFilePreview(
+      'media', // Verify this matches your bucket ID
+      fileId,
+      width,
+
+    ).toString(); // Ensure URL is returned as string
+  }
+
+
 
 }
