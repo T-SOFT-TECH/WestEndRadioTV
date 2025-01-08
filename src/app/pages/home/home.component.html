@@ -16,13 +16,13 @@
         <!-- Station Name -->
         <h1 class="text-6xl md:text-8xl font-bold text-text-primary">
          <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-           {{ siteSettings()?.stationName }}
+           {{ siteSettings()?.stationName ?? 'WestEnd Radio TV' }}
          </span>
         </h1>
 
         <!-- Station Tag -->
         <div class="inline-block px-6 py-2 bg-primary-500/20 backdrop-blur-sm rounded-full">
-          <span class="text-primary-400 font-medium">{{ siteSettings()?.stationSlogan }}</span>
+          <span class="text-primary-400 font-medium">{{ siteSettings()?.stationSlogan ?? ' Bringing You The Best Of Music And Entertainment. ' }}</span>
         </div>
 
 

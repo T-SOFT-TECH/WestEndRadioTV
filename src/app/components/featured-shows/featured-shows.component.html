@@ -1,5 +1,5 @@
 <!-- Add RouterLink to imports in the component -->
-<div class="relative w-full bg-background-dark min-h-[600px] overflow-hidden">
+<div class="relative w-full bg-background-dark min-h-[400px] overflow-hidden">
 
   <div class="container mx-auto px-4 mb-16">
     <div class="flex flex-col items-center text-center">
@@ -27,8 +27,8 @@
     loop="true">
 
     @for(show of featuredShows(); track show.$id){
-      <swiper-slide class="h-80">
-        <div class="relative h-[38rem] w-full">
+      <swiper-slide class="h-52">
+        <div class="relative h-[28rem] w-full">
           @if (show.imageId) {
             <img [src]="getImageUrl(show)"
                  [alt]="show.title"
@@ -44,14 +44,14 @@
               <!-- Clickable title with hover effect -->
               <a [routerLink]="['/shows', show.$id]"
                  class="group inline-block">
-                <h2 class="text-[4rem] font-bold text-white leading-none mb-3
+                <h2 class="text-[2rem] font-bold text-white leading-none mb-3
                            group-hover:text-primary-400 transition-colors duration-300
                            group-hover:underline">
                   {{show.title}}
                 </h2>
               </a>
 
-              <h3 class="text-2xl text-white/90 mb-6">By {{show.host}}</h3>
+              <h3 class="text-xl text-white/90 mb-6">By {{show.host}}</h3>
 
               <div class="flex items-center text-white/70">
                 <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">

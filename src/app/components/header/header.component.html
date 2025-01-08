@@ -13,10 +13,10 @@
         </div>
         <div>
           <h1 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-            {{settings()?.stationName}}
+            {{settings()?.stationName ?? 'WestEnd Radio TV'}}
           </h1>
           <span class="text-xs text-text-secondary block max-w-[150px] truncate">
-    {{settings()?.stationSlogan}}
+    {{settings()?.stationSlogan ?? 'Bringing You The Best Of Music And Entertainment.'}}
   </span>
         </div>
       </a>
