@@ -29,6 +29,7 @@
             </div>
             <input type="email"
                    formControlName="email"
+                   autocomplete="username"
                    class="w-full pl-12 pr-4 py-3 bg-background-dark/50 border border-white/10 rounded-xl
                               text-white placeholder:text-text-secondary/50 focus:outline-none focus:border-primary-500
                               transition-colors"
@@ -50,10 +51,11 @@
             </div>
             <input [type]="showPassword ? 'text' : 'password'"
                    formControlName="password"
+                   autocomplete="current-password"
                    class="w-full pl-12 pr-12 py-3 bg-background-dark/50 border border-white/10 rounded-xl
                               text-white placeholder:text-text-secondary/50 focus:outline-none focus:border-primary-500
                               transition-colors"
-                   placeholder="Enter your password" autoAnimate>
+                   placeholder="Enter your password" >
             <button type="button"
                     (click)="togglePassword()"
                     class="absolute inset-y-0 right-0 pr-4 flex items-center">

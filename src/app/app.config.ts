@@ -27,6 +27,8 @@ export const appConfig: ApplicationConfig = {
     // HTTP Client
     provideHttpClient(),
 
+
+
     // Animations
     provideAnimations(),
 

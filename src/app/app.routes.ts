@@ -154,7 +154,6 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/components/admin-layout/admin-layout.component')
       .then(m => m.AdminLayoutComponent),
     canActivate: [authGuard, roleGuard],
-    canActivateChild: [roleGuard],
     children: [
       {
         path: '',

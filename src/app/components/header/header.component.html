@@ -3,7 +3,7 @@
         class="fixed w-full top-0 z-50 transition-all duration-300"
         [ngClass]="isScrolled() ? 'bg-background-surface/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'">
   <div class="container mx-auto px-4">
-    <nav class="flex items-center justify-between h-20" aria-label="Main navigation">
+    <nav class="flex items-center justify-between h-20" aria-label="Main navigation" autoAnimate>
       <!-- Logo Section -->
       <a [routerLink]="['/']" class="flex items-center gap-3">
         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 via-primary-400 to-secondary-500 p-[2px]">

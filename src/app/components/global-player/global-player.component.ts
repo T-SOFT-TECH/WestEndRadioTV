@@ -2,6 +2,7 @@ import {Component, computed, effect, inject, signal} from '@angular/core';
 import {AppStateService} from '../../services/app-state.service';
 import {AudioService} from '../../services/audio.service';
 import {SiteService} from '../../services/site.service';
+import {AzuracastService} from '../../services/azuracast.service';
 
 interface AudioState {
   currentTime: number;
@@ -18,21 +19,19 @@ interface AudioState {
   styleUrl: './global-player.component.scss'
 })
 export class GlobalPlayerComponent {
-
-  protected appState = inject(AppStateService);
-  protected siteService = inject(SiteService);
   protected audioService = inject(AudioService);
-  currentShow = computed(() => this.appState.currentShow());
-  protected siteSettings = this.siteService.settings;
+  protected azuracast = inject(AzuracastService);
 
+  // Access computed values directly from AzuracastService
+  protected currentTrack = this.azuracast.currentTrack;
+  protected listeners = this.azuracast.listeners;
+  protected isLive = this.azuracast.isLive;
+  protected streamerName = this.azuracast.streamerName;
 
-  constructor() {
-    effect(() => {
-      const streamUrl = this.siteSettings()?.streamUrl;
-      if (streamUrl) {
-        this.audioService.setStreamUrl(streamUrl);
-      }
-    });
+  formatTime(time: number): string {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 
   updateVolume(event: Event): void {
@@ -46,12 +45,6 @@ export class GlobalPlayerComponent {
     const percent = (event.clientX - rect.left) / rect.width;
     const time = percent * this.audioService.audioState().duration;
     this.audioService.seek(time);
-  }
-
-  formatTime(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
 }

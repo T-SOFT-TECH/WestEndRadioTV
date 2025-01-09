@@ -1,8 +1,18 @@
-import {Component, HostListener, inject, OnInit, signal} from '@angular/core';
+import {Component, HostListener, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import { RouterLink, RouterLinkActive} from '@angular/router';
-import {Router} from 'express';
-import {filter} from 'rxjs';
 import {AppwriteService} from '../../../services/appwrite.service';
+import { DomSanitizer } from '@angular/platform-browser';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  heroHome,
+  heroRadio,
+  heroCalendar,
+  heroNewspaper,
+  heroMusicalNote,
+  heroClock,
+  heroCog
+} from '@ng-icons/heroicons/outline';
+
 
 interface SidebarStats {
   showsCount: number;
@@ -15,12 +25,24 @@ interface SidebarStats {
   selector: 'app-admin-sidebar',
   imports: [
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    NgIcon
+  ],
+  providers: [
+    provideIcons({
+      heroHome,
+      heroRadio,
+      heroCalendar,
+      heroNewspaper,
+      heroMusicalNote,
+      heroClock,
+      heroCog
+    })
   ],
   templateUrl: './admin-sidebar.component.html',
   styleUrl: './admin-sidebar.component.scss'
 })
-export class AdminSidebarComponent implements OnInit {
+export class AdminSidebarComponent implements OnInit, OnDestroy {
 
   private appwrite = inject(AppwriteService);
 
@@ -32,49 +54,50 @@ export class AdminSidebarComponent implements OnInit {
     listeners: 0
   });
 
+  protected isLoading = signal(false);
+
+
   protected menuItems = [
     {
       path: '/admin/dashboard',
       label: 'Dashboard',
-      icon: `<svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15v4m6-6v6m6-4v4m6-6v6M3 11l6-5 6 5 5.5-5.5"/>
-   </svg>`,
+      icon: 'heroHome',
       exact: true
     },
     {
       path: '/admin/shows',
       label: 'Shows',
-      icon: '📻',
+      icon: 'heroRadio',
       exact: false
     },
     {
       path: '/admin/events',
       label: 'Events',
-      icon: '📅',
+      icon: 'heroCalendar',
       exact: false
     },
     {
       path: '/admin/news',
       label: 'News',
-      icon: '📰',
+      icon: 'heroNewspaper',
       exact: false
     },
     {
       path: '/admin/tracks',
       label: 'Tracks',
-      icon: '🎵',
+      icon: 'heroMusicalNote',
       exact: false
     },
     {
       path: '/admin/schedule',
       label: 'Schedule',
-      icon: '📅',
+      icon: 'heroClock',
       exact: false
     },
     {
       path: '/admin/settings',
       label: 'Settings',
-      icon: '⚙️',
+      icon: 'heroCog',
       exact: false
     }
   ];
@@ -92,29 +115,6 @@ export class AdminSidebarComponent implements OnInit {
     this.startLiveUpdates();
   }
 
-  private async loadSidebarStats() {
-    try {
-      const [shows, tracks] = await Promise.all([
-        this.appwrite.getShows(),
-        this.appwrite.getTracks()
-      ]);
-
-      // Calculate uptime (replace with actual uptime tracking)
-      const startTime = new Date();
-      startTime.setHours(startTime.getHours() - 12); // Example: 12 hours ago
-      const uptime = this.calculateUptime(startTime);
-
-      this.sidebarStats.set({
-        showsCount: shows.total,
-        tracksCount: tracks.total,
-        uptime,
-        listeners: Math.floor(Math.random() * 2000) // Replace with actual listener count
-      });
-    } catch (error) {
-      console.error('Error loading sidebar stats:', error);
-    }
-  }
-
   private calculateUptime(startTime: Date): string {
     const now = new Date();
     const diff = now.getTime() - startTime.getTime();
@@ -125,13 +125,41 @@ export class AdminSidebarComponent implements OnInit {
     return `${hours}h ${minutes}m`;
   }
 
+
+  private async loadSidebarStats() {
+    this.isLoading.set(true);
+    try {
+      // Cache the promises
+      const showsPromise = this.appwrite.getShows();
+      const tracksPromise = this.appwrite.getTracks();
+
+      // Start both requests concurrently
+      const [shows, tracks] = await Promise.all([showsPromise, tracksPromise]);
+
+      const startTime = new Date();
+      startTime.setHours(startTime.getHours() - 12);
+
+      this.sidebarStats.update(current => ({
+        ...current,
+        showsCount: shows.total,
+        tracksCount: tracks.total,
+        uptime: this.calculateUptime(startTime),
+        // Keep existing listeners if loading fails
+        listeners: current.listeners
+      }));
+    } catch (error) {
+      console.error('Error loading sidebar stats:', error);
+    }
+    finally {
+      this.isLoading.set(false);
+    }
+  }
+
   private startLiveUpdates() {
-    // Update stats every minute
-    setInterval(() => {
+    this.updateInterval = setInterval(() => {
       this.loadSidebarStats();
     }, 60000);
   }
-
 
 
 
@@ -162,7 +190,14 @@ export class AdminSidebarComponent implements OnInit {
     }
   }
 
+// Add cleanup
+  private updateInterval: any;
 
+  ngOnDestroy() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
+  }
 
 
 }
