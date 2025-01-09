@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import { AppwriteService } from '../../../services/appwrite.service';
 import { AzuracastService } from '../../../services/azuracast.service';
-import { RouterLink } from '@angular/router';
 import {NgIcon, provideIcons} from '@ng-icons/core';
 import { Chart, registerables } from 'chart.js';
 import {
@@ -12,8 +11,8 @@ import {
   heroArrowTrendingUp,
   heroArrowTrendingDown
 } from '@ng-icons/heroicons/outline';
-import {FormatTimeAgoPipe} from '../../../model/format-time-ago.pipe';
-import {FormatUptimePipe} from '../../../pipe/format-time.pipe';
+import {FormatTimeAgoPipe} from '../../../pipe/format-time-ago.pipe';
+
 
 // Register Chart.js components
 Chart.register(...registerables);

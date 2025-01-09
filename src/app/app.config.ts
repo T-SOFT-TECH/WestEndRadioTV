@@ -1,7 +1,7 @@
 import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
 import {provideClientHydration, Title, Meta, withEventReplay} from '@angular/platform-browser';
-import { provideHttpClient } from '@angular/common/http';
+import {provideHttpClient, withFetch} from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHotToastConfig } from '@ngxpert/hot-toast';
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
@@ -25,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
 
     // HTTP Client
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
 
 
 

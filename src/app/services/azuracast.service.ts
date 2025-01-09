@@ -1,6 +1,9 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import {AzuracastResponse, CurrentTrack} from '../model/azuracast.model';
+import {Observable} from 'rxjs';
+import {Listener} from '../model/listeners.model';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 
 @Injectable({
@@ -8,8 +11,14 @@ import {AzuracastResponse, CurrentTrack} from '../model/azuracast.model';
 })
 export class AzuracastService {
   private readonly AZURACAST_WS_URL = 'wss://tsoft.stream/api/live/nowplaying/websocket';
+  private readonly AZURACAST_URL = 'http://tsoft.stream';
+  private readonly STATION_ID = 'westend_radio_tv';
+  private readonly API_KEY = '8fe3697a1e1fa55b:ae3c046191c39f0260307692a17554a7';
+
   private ws: WebSocket | null = null;
   private platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+
   private currentTime = signal(0);
   nowPlayingData = signal<AzuracastResponse | null>(null);
 
@@ -32,6 +41,12 @@ export class AzuracastService {
   readonly isLive = computed(() => this.nowPlayingData()?.live.is_live ?? false);
   readonly streamerName = computed(() => this.nowPlayingData()?.live.streamer_name ?? '');
   readonly isOnline = computed(() => this.nowPlayingData()?.is_online ?? false);
+
+
+  private headers = new HttpHeaders({
+    'X-API-Key': this.API_KEY
+  });
+
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -147,4 +162,42 @@ export class AzuracastService {
     const data = this.nowPlayingData();
     return data?.song_history ?? [];
   });
+
+  getListeners(): Observable<Listener[]> {
+    return this.http.get<Listener[]>(
+      `${this.AZURACAST_URL}/api/station/${this.STATION_ID}/listeners`,
+      { headers: this.headers }
+    );
+  }
+
+  getListenerAnalytics(start: Date, end: Date) {
+    return this.http.get(
+      `${this.AZURACAST_URL}/api/station/${this.STATION_ID}/listeners/analytics`,
+      {
+        headers: this.headers,
+        params: {
+          start: start.toISOString(),
+          end: end.toISOString()
+        }
+      }
+    );
+  }
+
+  getHistoricalListeners(start: Date, end: Date): Observable<Listener[]> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.API_KEY
+    });
+
+    // Format the dates to match the API's expected format
+    const params = {
+      start: start.toISOString(),
+      end: end.toISOString()
+    };
+
+    return this.http.get<Listener[]>(
+      `${this.AZURACAST_URL}/api/station/${this.STATION_ID}/listeners`,
+      { headers, params }
+    );
+  }
+
 }

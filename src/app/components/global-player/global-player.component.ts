@@ -24,7 +24,6 @@ export class GlobalPlayerComponent {
 
   // Access computed values directly from AzuracastService
   protected currentTrack = this.azuracast.currentTrack;
-  protected listeners = this.azuracast.listeners;
   protected isLive = this.azuracast.isLive;
   protected streamerName = this.azuracast.streamerName;
 

@@ -65,6 +65,12 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
       exact: true
     },
     {
+      path: '/admin/listeners',
+      label: 'Listeners',
+      icon: 'heroUsers',
+      exact: true
+    },
+    {
       path: '/admin/shows',
       label: 'Shows',
       icon: 'heroRadio',

@@ -167,6 +167,12 @@ export const routes: Routes = [
         title: 'Admin Dashboard'
       },
       {
+        path: 'listeners',
+        loadComponent: () => import('./admin/pages/listeners/listeners.component')
+          .then(m => m.ListenersComponent),
+        title: 'Listeners Statistics - WestEndRadioTV',
+      },
+      {
         path: 'shows',
         loadComponent: () => import('./admin/pages/admin-shows/admin-shows.component')
           .then(m => m.AdminShowsComponent),
