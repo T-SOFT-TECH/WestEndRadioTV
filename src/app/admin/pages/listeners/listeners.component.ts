@@ -17,9 +17,11 @@ import {
   heroArrowLeft,
   heroArrowRight,
   heroDocumentArrowDown,
-  heroFunnel
+  heroFunnel,
 } from '@ng-icons/heroicons/outline';
 import {ListenersMapComponent} from '../../components/listeners-map/listeners-map.component';
+import {MapModalComponent} from '../../components/map-modal/map-modal.component';
+import {Dialog} from '@angular/cdk/dialog';
 
 interface SortConfig {
   column: string;
@@ -53,7 +55,7 @@ interface TableColumn {
       heroArrowLeft,
       heroArrowRight,
       heroDocumentArrowDown,
-      heroFunnel
+      heroFunnel,
     })
   ],
   templateUrl: './listeners.component.html',
@@ -61,6 +63,7 @@ interface TableColumn {
 })
 export class ListenersComponent {
   private azuracast = inject(AzuracastService);
+  private dialog = inject(Dialog);
 
   protected searchTerm = signal('');
   protected streamFilter = signal('');
@@ -88,20 +91,20 @@ export class ListenersComponent {
 
   // Table Columns
   protected readonly liveColumns: TableColumn[] = [
-    { key: 'ip', label: 'IP', sortable: true },
-    { key: 'location', label: 'Location', sortable: true },
-    { key: 'connected_time', label: 'Time Connected', sortable: true },
-    { key: 'mount_name', label: 'Stream', sortable: true },
-    { key: 'client', label: 'Client', sortable: true }
+    {key: 'ip', label: 'IP', sortable: true},
+    {key: 'location', label: 'Location', sortable: true},
+    {key: 'connected_time', label: 'Time Connected', sortable: true},
+    {key: 'mount_name', label: 'Stream', sortable: true},
+    {key: 'client', label: 'Client', sortable: true}
   ];
 
   protected readonly historyColumns: TableColumn[] = [
-    { key: 'connected_on', label: 'Date', sortable: true },
-    { key: 'ip', label: 'IP', sortable: true },
-    { key: 'location', label: 'Location', sortable: true },
-    { key: 'connected_time', label: 'Duration', sortable: true },
-    { key: 'mount_name', label: 'Stream', sortable: true },
-    { key: 'client', label: 'Client', sortable: true }
+    {key: 'connected_on', label: 'Date', sortable: true},
+    {key: 'ip', label: 'IP', sortable: true},
+    {key: 'location', label: 'Location', sortable: true},
+    {key: 'connected_time', label: 'Duration', sortable: true},
+    {key: 'mount_name', label: 'Stream', sortable: true},
+    {key: 'client', label: 'Client', sortable: true}
   ];
 
   // Stats Computations
@@ -120,7 +123,7 @@ export class ListenersComponent {
       .reduce((acc, curr) => acc + curr.connected_time, 0) / 3600).toFixed(2),
     currentListeners: 0,
     totalConnections: this.historicalListeners().length,
-    peakListeners: Math.max(...Array.from({ length: 24 }, (_, i) =>
+    peakListeners: Math.max(...Array.from({length: 24}, (_, i) =>
       this.historicalListeners().filter(l => new Date(l.connected_on * 1000).getHours() === i).length
     ))
   }));
@@ -201,7 +204,7 @@ export class ListenersComponent {
   }
 
   private sortListeners(listeners: Listener[]): Listener[] {
-    const { column, direction } = this.sortConfig();
+    const {column, direction} = this.sortConfig();
     if (!column) return listeners;
 
     return [...listeners].sort((a, b) => {
@@ -218,13 +221,20 @@ export class ListenersComponent {
 
   private getSortValue(listener: Listener, column: string): any {
     switch (column) {
-      case 'ip': return listener.ip;
-      case 'location': return listener.location.description;
-      case 'connected_time': return listener.connected_time;
-      case 'mount_name': return listener.mount_name;
-      case 'client': return listener.device.client;
-      case 'connected_on': return listener.connected_on;
-      default: return '';
+      case 'ip':
+        return listener.ip;
+      case 'location':
+        return listener.location.description;
+      case 'connected_time':
+        return listener.connected_time;
+      case 'mount_name':
+        return listener.mount_name;
+      case 'client':
+        return listener.device.client;
+      case 'connected_on':
+        return listener.connected_on;
+      default:
+        return '';
     }
   }
 
@@ -238,7 +248,7 @@ export class ListenersComponent {
 
   protected loadHistoricalData() {
     this.isLoading.set(true);
-    const { start, end } = this.dateRange();
+    const {start, end} = this.dateRange();
 
     this.azuracast.getHistoricalListeners(start, end).subscribe({
       next: (data) => {
@@ -298,7 +308,7 @@ export class ListenersComponent {
     }, {} as Record<string, number>);
 
     const topLocation = Object.entries(locationCounts)
-      .sort(([,a], [,b]) => b - a)[0];
+      .sort(([, a], [, b]) => b - a)[0];
 
     return topLocation ?
       `${topLocation[0]} (${topLocation[1]} listeners)` :
@@ -317,4 +327,15 @@ export class ListenersComponent {
     return `${uniqueRegions.size} regions`;
   }
 
+  protected openMapModal() {
+    this.dialog.open(MapModalComponent, {
+      data: {
+        listeners: this.activeTab() === 'live' ?
+          this.filteredListeners() :
+          this.filteredHistoricalListeners(),
+        type: this.activeTab()
+      }
+    });
+
+  }
 }

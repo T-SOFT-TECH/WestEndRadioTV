@@ -32,7 +32,7 @@
           <ng-icon name="heroUsers" class="w-6 h-6 text-primary-400"/>
         </div>
       </div>
-      <p class="text-text-secondary text-sm mt-4">Peak today: {{ stats().listeners.peak ?? 0 }}</p>
+      <p class="text-text-secondary text-sm mt-4">Peak today: {{ stats().listeners.peak}}</p>
     </div>
 
     <!-- Stream Quality -->
@@ -41,14 +41,14 @@
         <div>
           <p class="text-text-secondary">Stream Quality</p>
           <div class="flex items-baseline gap-2 mt-2">
-            <h3 class="text-3xl font-bold text-white">{{ stats().streamStatus.bitrate ?? 128 }}kbps</h3>
+            <h3 class="text-3xl font-bold text-white">{{ stats().streamStatus.bitrate }}kbps</h3>
           </div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-secondary-500/10 flex items-center justify-center">
           <ng-icon name="heroSignal" class="w-6 h-6 text-secondary-400"/>
         </div>
       </div>
-      <p class="text-text-secondary text-sm mt-4">Format: {{ stats().streamStatus.format ?? 'MP3' }}</p>
+      <p class="text-text-secondary text-sm mt-4">Format: {{ stats().streamStatus.format  }}</p>
     </div>
 
     <!-- Active Shows -->
@@ -57,8 +57,8 @@
         <div>
           <p class="text-text-secondary">Active Shows</p>
           <div class="flex items-baseline gap-2 mt-2">
-            <h3 class="text-3xl font-bold text-white">{{ stats().activeShows ?? 0 }}</h3>
-            <span class="text-sm text-text-secondary">/ {{ stats().totalShows ?? 0 }}</span>
+            <h3 class="text-3xl font-bold text-white">{{ stats().activeShows}}</h3>
+            <span class="text-sm text-text-secondary">/ {{ stats().totalShows }}</span>
           </div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-status-live/10 flex items-center justify-center">
@@ -80,7 +80,7 @@
         <div>
           <p class="text-text-secondary">Total Tracks</p>
           <div class="flex items-baseline gap-2 mt-2">
-            <h3 class="text-3xl font-bold text-white">{{ stats().totalTracks ?? 0 }}</h3>
+            <h3 class="text-3xl font-bold text-white">{{ stats().totalTracks}}</h3>
           </div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center">

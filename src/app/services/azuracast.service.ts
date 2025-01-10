@@ -11,7 +11,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 })
 export class AzuracastService {
   private readonly AZURACAST_WS_URL = 'wss://tsoft.stream/api/live/nowplaying/websocket';
-  private readonly AZURACAST_URL = 'http://tsoft.stream';
+  private readonly AZURACAST_URL = 'https://tsoft.stream';
   private readonly STATION_ID = 'westend_radio_tv';
   private readonly API_KEY = '8fe3697a1e1fa55b:ae3c046191c39f0260307692a17554a7';
 
@@ -185,7 +185,7 @@ export class AzuracastService {
 
   getHistoricalListeners(start: Date, end: Date): Observable<Listener[]> {
     const headers = new HttpHeaders({
-      'X-API-Key': this.API_KEY
+      'X-API-Key': this.API_KEY,
     });
 
     // Format the dates to match the API's expected format
