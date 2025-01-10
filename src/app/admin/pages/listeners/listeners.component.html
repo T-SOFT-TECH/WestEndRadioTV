@@ -1,0 +1,353 @@
+<div class="space-y-8" autoAnimate>
+  <!-- Tab Navigation -->
+  <div class="flex items-center justify-between" autoAnimate>
+    <div class="bg-background-surface/50 backdrop-blur-sm rounded-xl p-1.5 inline-flex gap-1 border border-white/5"
+         autoAnimate>
+      @for (tab of tabs; track tab) {
+        <button
+          (click)="switchTab(tab)"
+          class="relative px-6 py-2.5 rounded-lg transition-all duration-300"
+          [class.bg-gradient-to-r]="activeTab() === tab"
+          [class.from-primary-500]="activeTab() === tab"
+          [class.to-secondary-500]="activeTab() === tab"
+          [class.text-white]="activeTab() === tab"
+          [class.text-text-secondary]="activeTab() !== tab"
+          [class.hover:text-white]="activeTab() !== tab">
+          {{ tab === 'live' ? 'Live Listeners' : 'Listener History' }}
+          @if (activeTab() === tab) {
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></span>
+          }
+        </button>
+      }
+    </div>
+
+    @if (activeTab() === 'history') {
+      <div class="flex gap-3">
+        <button class="px-4 py-2 bg-background-surface/50 hover:bg-primary-500/20 text-text-secondary
+                      hover:text-primary-400 rounded-lg transition-all duration-300 flex items-center gap-2
+                      border border-white/5">
+          <ng-icon name="heroDocumentArrowDown" class="w-4 h-4"></ng-icon>
+          Export CSV
+        </button>
+        <button class="px-4 py-2 bg-background-surface/50 hover:bg-primary-500/20 text-text-secondary
+                      hover:text-primary-400 rounded-lg transition-all duration-300 flex items-center gap-2
+                      border border-white/5">
+          <ng-icon name="heroFunnel" class="w-4 h-4"></ng-icon>
+          Filter
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    @for (card of [
+      {
+        title: activeTab() === 'live' ? 'Unique Listeners' : 'Total Unique Listeners',
+        value: getCurrentStats().uniqueListeners,
+        desc: activeTab() === 'live' ? 'Currently active unique IPs' : 'Total unique IPs for period',
+        icon: 'heroUsers'
+      },
+      {
+        title: 'Total Listening Hours',
+        value: getCurrentStats().totalHours,
+        desc: 'Total accumulated listening time',
+        icon: 'heroClock'
+      },
+      {
+        title: activeTab() === 'live' ? 'Current Listeners' : 'Total Connections',
+        value: activeTab() === 'live' ? getCurrentStats().currentListeners : getCurrentStats().totalConnections,
+        desc: activeTab() === 'live' ? 'Real-time active listeners' : 'Total connections made',
+        icon: 'heroSignal'
+      },
+      {
+        title: 'Peak Listeners',
+        value: getCurrentStats().peakListeners,
+        desc: activeTab() === 'live' ? 'Highest concurrent listeners' : 'Peak listeners during period',
+        icon: 'heroChartBar'
+      }
+    ]; track card.title) {
+      <div class="group bg-gradient-to-br from-background-surface/50 via-background-surface/30 to-background-surface/50
+                  backdrop-blur-sm rounded-xl p-6 border border-white/5 hover:border-primary-500/20
+                  transition-all duration-500 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/5 to-secondary-500/0
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+        <div class="relative">
+          <div class="flex items-start justify-between mb-4">
+            <div>
+              <h3 class="text-text-secondary text-sm font-medium mb-1">{{card.title}}</h3>
+              <div class="text-3xl font-bold text-white">{{card.value}}</div>
+            </div>
+            <div class="p-3 bg-primary-500/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+              <ng-icon [name]="card.icon" class="w-5 h-5 text-primary-400"></ng-icon>
+            </div>
+          </div>
+          <div class="text-text-secondary text-sm">{{card.desc}}</div>
+        </div>
+      </div>
+    }
+
+
+
+  </div>
+
+  @if (activeTab() === 'live') {
+    <!-- Live Listeners Table -->
+    <div class="bg-background-surface/50 backdrop-blur-sm rounded-xl border border-white/5" autoAnimate>
+      <div class="p-6 border-b border-white/5">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-white">Current Listeners</h2>
+
+          <div class="flex gap-4">
+            <div class="relative">
+              <input
+                type="search"
+                [(ngModel)]="searchTerm"
+                placeholder="Search listeners..."
+                class="pl-10 pr-4 py-2 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                       placeholder:text-text-secondary w-64 focus:border-primary-500 focus:ring-1
+                       focus:ring-primary-500/50 transition-all duration-300">
+              <ng-icon name="heroMagnifyingGlass"
+                       class="w-4 h-4 text-text-secondary absolute left-3 top-1/2 -translate-y-1/2">
+              </ng-icon>
+            </div>
+
+            <select
+              [(ngModel)]="streamFilter"
+              class="px-4 py-2 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                     focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all duration-300">
+              <option value="">All Streams</option>
+              <option value="local">Local</option>
+              <option value="remote">Remote</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+          <tr class="border-b border-white/5">
+            @for (column of liveColumns; track column.key) {
+              <th
+                (click)="column.sortable && sortData(column.key)"
+                [class]="column.sortable ? 'cursor-pointer hover:bg-white/5' : ''"
+                class="px-6 py-3 text-left text-sm font-medium text-text-secondary transition-colors">
+                <div class="flex items-center gap-2">
+                  {{ column.label }}
+                  @if (column.sortable) {
+                    <div class="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                      @switch (getSortIcon(column.key)) {
+                        @case ('asc') {
+                          <ng-icon name="heroChevronUp" class="w-4 h-4 text-primary-400"></ng-icon>
+                        }
+                        @case ('desc') {
+                          <ng-icon name="heroChevronDown" class="w-4 h-4 text-primary-400"></ng-icon>
+                        }
+                        @default {
+                          <ng-icon name="heroChevronUpDown" class="w-4 h-4 text-text-secondary/50"></ng-icon>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              </th>
+            }
+          </tr>
+          </thead>
+          <tbody autoAnimate>
+            @for (listener of filteredListeners(); track listener.ip) {
+              <tr class="border-b border-white/5 hover:bg-gradient-to-r from-primary-500/5
+                         to-secondary-500/5 transition-all duration-300">
+                <td class="px-6 py-4 text-sm text-white">{{listener.ip}}</td>
+                <td class="px-6 py-4 text-sm text-white">{{listener.location.description}}</td>
+                <td class="px-6 py-4 text-sm text-white">{{formatDuration(listener.connected_time)}}</td>
+                <td class="px-6 py-4 text-sm text-white">
+                  <span class="px-2 py-1 bg-gradient-to-r from-primary-500/10 to-secondary-500/10
+                              border border-primary-500/20 text-primary-400 rounded-full text-xs backdrop-blur-sm">
+                    {{listener.mount_name}}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-white">{{listener.device.client}}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <!-- Historical Data View -->
+    <div class="bg-background-surface/50 backdrop-blur-sm rounded-xl border border-white/5" autoAnimate>
+      <div class="p-6 border-b border-white/5">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-white">Listener History</h2>
+
+          <div class="flex gap-4">
+            <div class="flex items-center gap-2">
+              <label class="text-text-secondary">From</label>
+              <input
+                type="datetime-local"
+                [value]="dateRange().start.toISOString().slice(0, 16)"
+                (change)="updateDateRange('start', $event)"
+                class="px-4 py-2 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                       focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all duration-300">
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-text-secondary">To</label>
+              <input
+                type="datetime-local"
+                [value]="dateRange().end.toISOString().slice(0, 16)"
+                (change)="updateDateRange('end', $event)"
+                class="px-4 py-2 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                       focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all duration-300">
+            </div>
+            <button
+              (click)="loadHistoricalData()"
+              class="px-6 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600
+                     hover:to-secondary-600 text-white rounded-lg transition-all duration-300 flex items-center gap-2">
+              Apply
+              @if (isLoading()) {
+                <ng-icon name="heroArrowPath" class="w-4 h-4 animate-spin"></ng-icon>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 flex gap-4">
+          <div class="relative flex-1">
+            <input
+              type="search"
+              [(ngModel)]="historySearchTerm"
+              placeholder="Search historical data..."
+              class="w-full pl-10 pr-4 py-2 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                     placeholder:text-text-secondary focus:border-primary-500 focus:ring-1
+                     focus:ring-primary-500/50 transition-all duration-300">
+            <ng-icon name="heroMagnifyingGlass"
+                     class="w-4 h-4 text-text-secondary absolute left-3 top-1/2 -translate-y-1/2">
+            </ng-icon>
+          </div>
+
+          <select
+            [(ngModel)]="historyStreamFilter"
+            class="px-4 py-2 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                   focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all duration-300">
+            <option value="">All Streams</option>
+            <option value="local">Local</option>
+            <option value="remote">Remote</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+          <tr class="border-b border-white/5">
+            @for (column of historyColumns; track column.key) {
+              <th
+                (click)="column.sortable && sortData(column.key)"
+                [class]="column.sortable ? 'cursor-pointer hover:bg-white/5' : ''"
+                class="px-6 py-3 text-left text-sm font-medium text-text-secondary transition-colors group">
+                <div class="flex items-center gap-2">
+                  {{ column.label }}
+                  @if (column.sortable) {
+                    <div class="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                      @switch (getSortIcon(column.key)) {
+                        @case ('asc') {
+                          <ng-icon name="heroChevronUp" class="w-4 h-4 text-primary-400"></ng-icon>
+                        }
+                        @case ('desc') {
+                          <ng-icon name="heroChevronDown" class="w-4 h-4 text-primary-400"></ng-icon>
+                        }
+                        @default {
+                          <ng-icon name="heroChevronUpDown" class="w-4 h-4 text-text-secondary/50"></ng-icon>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              </th>
+            }
+          </tr>
+          </thead>
+          <tbody autoAnimate>
+            @for (listener of filteredHistoricalListeners(); track listener.connected_on) {
+              <tr class="border-b border-white/5 hover:bg-gradient-to-r from-primary-500/5
+                         to-secondary-500/5 transition-all duration-300">
+                <td class="px-6 py-4 text-sm text-white">
+                  {{listener.connected_on * 1000 | date:'medium'}}
+                </td>
+                <td class="px-6 py-4 text-sm text-white">{{listener.ip}}</td>
+                <td class="px-6 py-4 text-sm text-white">{{listener.location.description}}</td>
+                <td class="px-6 py-4 text-sm text-white">{{formatDuration(listener.connected_time)}}</td>
+                <td class="px-6 py-4 text-sm text-white">
+                  <span class="px-2 py-1 bg-gradient-to-r from-primary-500/10 to-secondary-500/10
+                              border border-primary-500/20 text-primary-400 rounded-full text-xs backdrop-blur-sm">
+                    {{listener.mount_name}}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-white">{{listener.device.client}}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-text-secondary">
+                  @if (isLoading()) {
+                    <div class="flex items-center justify-center gap-2">
+                      <ng-icon name="heroArrowPath" class="w-5 h-5 animate-spin"></ng-icon>
+                      <span>Loading historical data...</span>
+                    </div>
+                  } @else {
+                    No historical data found for the selected period
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+    <!-- Pagination -->
+    <div class="px-6 py-4 border-t border-white/5 flex items-center justify-between text-sm text-text-secondary">
+      <div>
+        Showing {{(currentPage() - 1) * pageSize() + 1}} -
+        {{Math.min(currentPage() * pageSize(), filteredHistoricalListeners().length)}}
+        of {{historicalListeners().length}} results
+      </div>
+      <div class="flex items-center gap-4">
+        <select
+          [ngModel]="pageSize()"
+          (ngModelChange)="pageSize.set($event)"
+          class="px-3 py-1 bg-background-dark/50 border border-white/10 rounded-lg text-white
+                   focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all duration-300">
+          <option [value]="10">10 per page</option>
+          <option [value]="25">25 per page</option>
+          <option [value]="50">50 per page</option>
+          <option [value]="100">100 per page</option>
+        </select>
+
+        <div class="flex items-center gap-2">
+          <button
+            (click)="currentPage.set(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+            class="p-2 rounded-lg text-text-secondary hover:text-white hover:bg-primary-500/10
+                     disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300">
+            <ng-icon name="heroArrowLeft" class="w-5 h-5"></ng-icon>
+          </button>
+          <span class="px-3 py-1 bg-primary-500/10 rounded-lg text-white">
+              Page {{currentPage()}} of {{getTotalPages()}}
+            </span>
+          <button
+            (click)="currentPage.set(currentPage() + 1)"
+            [disabled]="currentPage() === getTotalPages()"
+            class="p-2 rounded-lg text-text-secondary hover:text-white hover:bg-primary-500/10
+                     disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300">
+            <ng-icon name="heroArrowRight" class="w-5 h-5"></ng-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+

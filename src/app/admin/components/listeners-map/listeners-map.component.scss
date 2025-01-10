@@ -1,0 +1,30 @@
+/* listeners-map.component.scss */
+@import 'leaflet/dist/leaflet.css';
+
+:host ::ng-deep {
+  .leaflet-container {
+    background: transparent;
+  }
+
+  .leaflet-control-attribution {
+    background: rgba(0, 0, 0, 0.5) !important;
+    color: rgba(255, 255, 255, 0.7);
+
+    a {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .custom-popup {
+    .leaflet-popup-content-wrapper {
+      background: rgba(17, 24, 39, 0.95);
+      color: white;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .leaflet-popup-tip {
+      background: rgba(17, 24, 39, 0.95);
+    }
+  }
+}
