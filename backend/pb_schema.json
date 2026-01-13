@@ -1,0 +1,625 @@
+[
+    {
+        "name": "shows",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "title",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "host",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "description",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "startTime",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "endTime",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "days",
+                "type": "json",
+                "required": false
+            },
+            {
+                "name": "image",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"]
+            },
+            {
+                "name": "slug",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "active",
+                "type": "bool",
+                "required": false
+            },
+            {
+                "name": "featured",
+                "type": "bool",
+                "required": false
+            },
+            {
+                "name": "isLive",
+                "type": "bool",
+                "required": false
+            },
+            {
+                "name": "hostImages",
+                "type": "text",
+                "required": false
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "news",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "title",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "content",
+                "type": "editor",
+                "required": false
+            },
+            {
+                "name": "summary",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "author",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "publishDate",
+                "type": "date",
+                "required": false
+            },
+            {
+                "name": "image",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"]
+            },
+            {
+                "name": "slug",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "tags",
+                "type": "json",
+                "required": false
+            },
+            {
+                "name": "featured",
+                "type": "bool",
+                "required": false
+            },
+            {
+                "name": "active",
+                "type": "bool",
+                "required": false
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "events",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "title",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "description",
+                "type": "editor",
+                "required": false
+            },
+            {
+                "name": "startDate",
+                "type": "date",
+                "required": false
+            },
+            {
+                "name": "endDate",
+                "type": "date",
+                "required": false
+            },
+            {
+                "name": "location",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "category",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "organizer",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "image",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"]
+            },
+            {
+                "name": "slug",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "ticketLink",
+                "type": "url",
+                "required": false
+            },
+            {
+                "name": "featured",
+                "type": "bool",
+                "required": false
+            },
+            {
+                "name": "active",
+                "type": "bool",
+                "required": false
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "tracks",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "title",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "artist",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "albumName",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "image",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"]
+            },
+            {
+                "name": "playedAt",
+                "type": "date",
+                "required": false
+            },
+            {
+                "name": "show",
+                "type": "text",
+                "required": false
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "episodes",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "title",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "description",
+                "type": "editor",
+                "required": false
+            },
+            {
+                "name": "showId",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "audioUrl",
+                "type": "url",
+                "required": false
+            },
+            {
+                "name": "duration",
+                "type": "number",
+                "required": false
+            },
+            {
+                "name": "publishDate",
+                "type": "date",
+                "required": false
+            },
+            {
+                "name": "image",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"]
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "settings",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "stationName",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "stationSlogan",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "streamUrl",
+                "type": "url",
+                "required": false
+            },
+            {
+                "name": "heroImage",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"]
+            },
+            {
+                "name": "heroTitle",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "heroSubtitle",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "email",
+                "type": "email",
+                "required": false
+            },
+            {
+                "name": "phone",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "address",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "businessHours",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "supportEmail",
+                "type": "email",
+                "required": false
+            },
+            {
+                "name": "facebookUrl",
+                "type": "url",
+                "required": false
+            },
+            {
+                "name": "twitterUrl",
+                "type": "url",
+                "required": false
+            },
+            {
+                "name": "instagramUrl",
+                "type": "url",
+                "required": false
+            },
+            {
+                "name": "youtubeUrl",
+                "type": "url",
+                "required": false
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "contact_messages",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "name",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "email",
+                "type": "email",
+                "required": true
+            },
+            {
+                "name": "subject",
+                "type": "text",
+                "required": false
+            },
+            {
+                "name": "message",
+                "type": "text",
+                "required": true
+            },
+            {
+                "name": "read",
+                "type": "bool",
+                "required": false
+            }
+        ],
+        "listRule": "@request.auth.id != ''",
+        "viewRule": "@request.auth.id != ''",
+        "createRule": "",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "newsletter_subscribers",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "email",
+                "type": "email",
+                "required": true
+            },
+            {
+                "name": "subscribedAt",
+                "type": "date",
+                "required": false
+            },
+            {
+                "name": "active",
+                "type": "bool",
+                "required": false
+            }
+        ],
+        "listRule": "@request.auth.id != ''",
+        "viewRule": "@request.auth.id != ''",
+        "createRule": "",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    },
+    {
+        "name": "media",
+        "type": "base",
+        "fields": [
+            {
+                "name": "id",
+                "type": "text"
+            },
+            {
+                "name": "created",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": false
+            },
+            {
+                "name": "updated",
+                "type": "autodate",
+                "onCreate": true,
+                "onUpdate": true
+            },
+            {
+                "name": "file",
+                "type": "file",
+                "required": false,
+                "maxSelect": 1,
+                "maxSize": 52428800
+            },
+            {
+                "name": "description",
+                "type": "text",
+                "required": false
+            }
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != ''",
+        "deleteRule": "@request.auth.id != ''"
+    }
+]

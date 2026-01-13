@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./pocketbase serve:*)",
+      "Bash(npm start)",
+      "Bash(timeout 10 tail:*)",
+      "Bash(timeout 5 tail:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)"
+    ]
+  }
+}

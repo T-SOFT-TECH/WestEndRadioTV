@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # PocketBase Backend
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:latest
+    container_name: westendradio-pocketbase
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./backend/pb_data:/pb/pb_data
+      - ./backend/pb_migrations:/pb/pb_migrations
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8090/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - westendradio-network
+
+  # Angular SSR Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: westendradio-frontend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - POCKETBASE_URL=http://pocketbase:8090
+    depends_on:
+      pocketbase:
+        condition: service_healthy
+    networks:
+      - westendradio-network
+
+networks:
+  westendradio-network:
+    driver: bridge
+
+volumes:
+  pb_data:
+    driver: local
