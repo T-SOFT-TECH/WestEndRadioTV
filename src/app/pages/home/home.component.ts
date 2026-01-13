@@ -1,11 +1,11 @@
-import {Component, computed, effect, HostListener, inject, signal} from '@angular/core';
-import {SiteService} from '../../services/site.service';
-import {AudioService} from '../../services/audio.service';
-import {AppwriteService} from '../../services/appwrite.service';
-import {FeaturedShowsComponent} from '../../components/featured-shows/featured-shows.component';
-import {WeeklySchedulesComponent} from '../../components/weekly-schedules/weekly-schedules.component';
-import {LatestNewsComponent} from '../../components/latest-news/latest-news.component';
-import {UpcomingEventsComponent} from '../../components/upcoming-events/upcoming-events.component';
+import { Component, computed, effect, HostListener, inject, signal } from '@angular/core';
+import { SiteService } from '../../services/site.service';
+import { AudioService } from '../../services/audio.service';
+import { PocketbaseService } from '../../services/pocketbase.service';
+import { FeaturedShowsComponent } from '../../components/featured-shows/featured-shows.component';
+import { WeeklySchedulesComponent } from '../../components/weekly-schedules/weekly-schedules.component';
+import { LatestNewsComponent } from '../../components/latest-news/latest-news.component';
+import { UpcomingEventsComponent } from '../../components/upcoming-events/upcoming-events.component';
 
 
 @Component({
@@ -30,7 +30,7 @@ export class HomeComponent {
   }
 
   protected siteService = inject(SiteService);
-  protected appwrite = inject(AppwriteService);
+  protected pocketbase = inject(PocketbaseService);
   protected audioService = inject(AudioService);
   protected siteSettings = this.siteService.settings;
 
@@ -41,14 +41,14 @@ export class HomeComponent {
 
 
   constructor() {
-console.dir(this.heroImage())
+    console.dir(this.heroImage())
   }
 
   protected heroImage = computed(() => {
     const settings = this.siteSettings();
     if (!settings?.heroImage) return 'assets/img/Hero.webp';
 
-    const imageUrl = this.siteService.getImageUrl(settings.heroImage);
+    const imageUrl = this.siteService.getImageUrl(settings, settings.heroImage);
     console.log('Hero image URL:', imageUrl); // Debug URL
     return imageUrl;
   });

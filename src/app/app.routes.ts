@@ -203,6 +203,12 @@ export const routes: Routes = [
         title: 'Manage Events'
       },
       {
+        path: 'messages',
+        loadComponent: () => import('./admin/pages/admin-messages/admin-messages.component')
+          .then(m => m.AdminMessagesComponent),
+        title: 'Messages Inbox'
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./admin/pages/admin-settings/admin-settings.component')
           .then(m => m.AdminSettingsComponent),

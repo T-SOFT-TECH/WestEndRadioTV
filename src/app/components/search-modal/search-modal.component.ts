@@ -1,10 +1,10 @@
-import {Component, ElementRef, inject, OnInit, PLATFORM_ID, signal, ViewChild} from '@angular/core';
-import {SiteService} from '../../services/site.service';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {debounceTime, distinctUntilChanged} from 'rxjs';
-import {Router, RouterLink} from '@angular/router';
-import {isPlatformBrowser} from '@angular/common';
-import {AutoAnimationDirective} from '../../Directives/auto-Animate.directive';
+import { Component, ElementRef, inject, OnInit, PLATFORM_ID, signal, ViewChild } from '@angular/core';
+import { SiteService } from '../../services/site.service';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { AutoAnimationDirective } from '../../Directives/auto-Animate.directive';
 
 @Component({
   selector: 'app-search-modal',
@@ -65,11 +65,11 @@ export class SearchModalComponent implements OnInit {
         show.description.toLowerCase().includes(term.toLowerCase())
       )
       .map(show => ({
-        id: show.$id,
+        id: show.id,
         title: show.title,
         type: 'Show',
         url: `/shows/${show.slug}`,
-        image: show.imageId ? this.siteService.getImageUrl(show.imageId) : null
+          image: show.image ? this.siteService.getImageUrl(show, show.image) : null,
       }));
   }
 
@@ -80,11 +80,11 @@ export class SearchModalComponent implements OnInit {
         news.content.toLowerCase().includes(term.toLowerCase())
       )
       .map(news => ({
-        id: news.$id,
+        id: news.id,
         title: news.title,
         type: 'News',
         url: `/news/${news.slug}`,
-        image: news.imageId ? this.siteService.getImageUrl(news.imageId) : null
+          image: news.image ? this.siteService.getImageUrl(news, news.image) : null,
       }));
   }
 
@@ -95,11 +95,11 @@ export class SearchModalComponent implements OnInit {
         event.description.toLowerCase().includes(term.toLowerCase())
       )
       .map(event => ({
-        id: event.$id,
+        id: event.id,
         title: event.title,
         type: 'Event',
         url: `/events/${event.slug}`,
-        image: event.imageId ? this.siteService.getImageUrl(event.imageId) : null
+          image: event.image ? this.siteService.getImageUrl(event, event.image) : null,
       }));
   }
 

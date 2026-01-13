@@ -58,8 +58,9 @@ export class ScheduleComponent {
   }
 
   protected filteredShows = computed(() => {
+    const activeDayLower = this.activeDay().toLowerCase();
     return this.siteService.shows()
-      .filter(show => show.days.includes(this.activeDay().toLowerCase()))
+      .filter(show => show.days.some(day => day.toLowerCase() === activeDayLower))
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
   });
 

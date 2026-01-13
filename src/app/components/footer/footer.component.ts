@@ -1,11 +1,11 @@
 // footer.component.ts
-import {Component, computed, inject, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {RouterLink} from '@angular/router';
-import {NewsletterService} from '../../services/newsletter.service';
-import {AppwriteService} from '../../services/appwrite.service';
-import {HotToastService} from '@ngxpert/hot-toast';
-import {SiteService} from "../../services/site.service";
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NewsletterService } from '../../services/newsletter.service';
+import { PocketbaseService } from '../../services/pocketbase.service';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { SiteService } from "../../services/site.service";
 
 @Component({
   selector: 'app-footer',
@@ -19,7 +19,7 @@ import {SiteService} from "../../services/site.service";
 export class FooterComponent {
   private fb = inject(FormBuilder);
   private readonly newsletter = inject(NewsletterService);
-  appwrite = inject(AppwriteService);
+  pocketbase = inject(PocketbaseService);
   toast = inject(HotToastService);
   protected siteService = inject(SiteService);
 
@@ -36,7 +36,7 @@ export class FooterComponent {
 
     this.isSubmitting.set(true);
     try {
-      await this.appwrite.newsletterSubscribe(this.newsletterForm.value.email!);
+      await this.pocketbase.newsletterSubscribe(this.newsletterForm.value.email!);
       this.toast.success('Successfully subscribed to newsletter!');
       this.newsletterForm.reset();
     } catch (error) {

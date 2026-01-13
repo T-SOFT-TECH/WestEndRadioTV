@@ -40,3 +40,16 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# PocketBase data (if running locally)
+/backend/pb_data/*.db
+/backend/pb_data/*.db-shm
+/backend/pb_data/*.db-wal
+/backend/pb_data/logs/
+/backend/pb_data/storage/
+!/backend/pb_data/types.d.ts

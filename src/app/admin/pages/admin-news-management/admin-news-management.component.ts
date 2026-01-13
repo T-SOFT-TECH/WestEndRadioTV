@@ -1,12 +1,12 @@
-import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {News} from '../../../model/news.model';
-import {AppwriteService} from '../../../services/appwrite.service';
-import {DatePipe} from '@angular/common';
-import {Editor, NgxEditorModule, Toolbar} from 'ngx-editor';
-import {AutoAnimationDirective} from '../../../Directives/auto-Animate.directive';
-import {HotToastService} from '@ngxpert/hot-toast';
-import {Subscription} from 'rxjs';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { News } from '../../../model/news.model';
+import { PocketbaseService } from '../../../services/pocketbase.service';
+import { DatePipe } from '@angular/common';
+import { Editor, NgxEditorModule, Toolbar } from 'ngx-editor';
+import { AutoAnimationDirective } from '../../../Directives/auto-Animate.directive';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { Subscription } from 'rxjs';
 
 interface EditorState {
   html: string;
@@ -26,7 +26,7 @@ interface EditorState {
   styleUrl: './admin-news-management.component.scss'
 })
 export class AdminNewsManagementComponent implements OnInit, OnDestroy {
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private fb = inject(FormBuilder);
   private toast = inject(HotToastService);
   private editorSubscription?: Subscription;
@@ -82,60 +82,74 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
 
   protected async loadNews() {
     try {
-      const response = await this.appwrite.getNews();
-      this.news.set(response.documents as unknown as News[]);
+      const response = await this.pocketbase.getNews();
+      const news: News[] = response.documents.map(doc => ({
+        id: doc.id,
+        collectionId: doc.collectionId,
+        collectionName: doc.collectionName,
+        title: doc['title'],
+        content: doc['content'],
+        summary: doc['summary'],
+        image: doc['image'],
+        publishDate: doc['publishDate'],
+        author: doc['author'],
+        tags: doc['tags'],
+        featured: doc['featured'],
+        active: doc['active'],
+        slug: doc['slug']
+      }));
+      this.news.set(news);
     } catch (error) {
       console.error('Error loading news:', error);
-      this.toast.error('Failed to load news');
     }
   }
 
   protected async saveNews() {
-    if (this.newsForm.invalid) {
-      this.toast.error('Please fill all required fields');
-      return;
-    }
+    if (this.newsForm.invalid) return;
 
     this.isSubmitting.set(true);
     try {
-      let imageId = this.editingNews()?.imageId;
-      if (this.selectedFile) {
-        const uploaded = await this.appwrite.uploadFile(this.selectedFile);
-        imageId = uploaded.$id;
-      }
+      const tags = this.newsForm.value.tags?.split(',').map((t: string) => t.trim()).filter((t: string) => t) || [];
 
-      const formValue = this.newsForm.value;
-      const content = this.editorContent().html || formValue.content;
-
-      const newsData = {
-        title: formValue.title,
-        content: content,
-        summary: formValue.summary,
-        author: formValue.author,
-        publishDate: formValue.publishDate,
-        imageId,
-        tags: formValue.tags?.split(',').map(t => t.trim()) || [],
-        featured: formValue.featured,
-        active: formValue.active,
-        slug: formValue.title?.toLowerCase().replace(/\s+/g, '-')
+      const newsData: any = {
+        title: this.newsForm.value.title!,
+        content: this.editorContent(),
+        summary: this.newsForm.value.summary!,
+        author: this.newsForm.value.author!,
+        publishDate: this.newsForm.value.publishDate ? new Date(this.newsForm.value.publishDate).toISOString() : new Date().toISOString(),
+        tags,
+        featured: this.newsForm.value.featured!,
+        active: this.newsForm.value.active!,
+        slug: this.slugify(this.newsForm.value.title!)
       };
 
+      if (this.selectedFile) {
+        newsData.image = this.selectedFile;
+      }
+
       if (this.editingNews()) {
-        await this.appwrite.updateNews(this.editingNews()!.$id!, newsData);
-        this.toast.success('News updated successfully');
+        await this.pocketbase.updateNews(this.editingNews()!.id!, newsData);
       } else {
-        await this.appwrite.createNews(newsData);
-        this.toast.success('News created successfully');
+        await this.pocketbase.createNews(newsData);
       }
 
       await this.loadNews();
       this.closeForm();
     } catch (error) {
       console.error('Error saving news:', error);
-      this.toast.error('Failed to save news');
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  private slugify(text: string): string {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')     // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-');  // Replace multiple - with single -
   }
 
   protected editNews(news: News) {
@@ -158,8 +172,8 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
       json: this.editor.view?.state.doc.toJSON()
     });
 
-    if (news.imageId) {
-      this.imagePreview.set(this.getImageUrl(news.imageId));
+    if (news.image) {
+      this.imagePreview.set(this.pocketbase.getImageUrl(news, news.image));
     }
 
     this.showModal.set(true);
@@ -202,21 +216,21 @@ export class AdminNewsManagementComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.imagePreview.set(null);
     this.selectedFile = null;
-    const editingNews = this.editingNews();
-    if (editingNews) {
-      editingNews.imageId = undefined;
+    const editing = this.editingNews();
+    if (editing) {
+      editing.image = undefined;
     }
   }
 
-  protected getImageUrl(imageId: string): string {
-    return this.appwrite.getFileView(imageId);
+  protected getImageUrl(item: News): string {
+    return item.image ? this.pocketbase.getImageUrl(item, item.image) : '';
   }
 
   protected async deleteNews(newsId: string) {
     if (!confirm('Are you sure you want to delete this article?')) return;
 
     try {
-      await this.appwrite.deleteNews(newsId);
+      await this.pocketbase.deleteNews(newsId);
       await this.loadNews();
       this.toast.success('News deleted successfully');
     } catch (error) {

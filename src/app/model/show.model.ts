@@ -1,12 +1,14 @@
 export interface Show {
-  $id?: string;
+  id?: string;
+  collectionId?: string;
+  collectionName?: string;
   title: string;
   host: string;
   description: string;
   startTime: string;
   endTime: string;
   days: string[];
-  imageId?: string;
+  image?: string;
   active: boolean;
   featured: boolean;
   slug?: string;

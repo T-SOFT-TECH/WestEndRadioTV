@@ -1,7 +1,7 @@
 // admin-settings.component.ts
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AppwriteService } from '../../../services/appwrite.service';
+import { PocketbaseService } from '../../../services/pocketbase.service';
 import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
@@ -11,7 +11,7 @@ import { HotToastService } from '@ngxpert/hot-toast';
   templateUrl: './admin-settings.component.html'
 })
 export class AdminSettingsComponent implements OnInit {
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private fb = inject(FormBuilder);
   private toast = inject(HotToastService);
 
@@ -34,7 +34,7 @@ export class AdminSettingsComponent implements OnInit {
 
     // Contact Information - remains nested
     contactInfo: this.fb.group({
-      email: ['', [ Validators.email]],
+      email: ['', [Validators.email]],
       phone: [''],
       address: [''],
       businessHours: [''],
@@ -51,6 +51,7 @@ export class AdminSettingsComponent implements OnInit {
   });
 
   private initialValues: any = {};
+  private currentSettingsRecord: any = null;
 
   constructor() {
     this.settingsForm.valueChanges.subscribe(() => {
@@ -64,7 +65,8 @@ export class AdminSettingsComponent implements OnInit {
 
   protected async loadSettings() {
     try {
-      const settings = await this.appwrite.getSettings();
+      const settings = await this.pocketbase.getSettings();
+      this.currentSettingsRecord = settings;
 
       // Update form values
       this.settingsForm.patchValue({
@@ -92,7 +94,7 @@ export class AdminSettingsComponent implements OnInit {
       });
 
       if (settings['heroImage']) {
-        this.heroPreview.set(this.appwrite.getFileView(settings['heroImage']));
+        this.heroPreview.set(this.pocketbase.getImageUrl(settings, settings['heroImage']));
       }
 
       this.initialValues = this.settingsForm.value;
@@ -110,19 +112,11 @@ export class AdminSettingsComponent implements OnInit {
 
     this.isSubmitting.set(true);
     try {
-      let heroImageId = this.settingsForm.get('heroImage')?.value;
-
-      if (this.selectedFile) {
-        const uploadedFile = await this.appwrite.uploadFile(this.selectedFile);
-        heroImageId = uploadedFile.$id;
-      }
-
       const formValue = this.settingsForm.value;
-      const settingsData = {
+      const settingsData: any = {
         stationName: formValue.stationName,
         stationSlogan: formValue.stationSlogan,
         streamUrl: formValue.streamUrl,
-        heroImage: heroImageId,
         heroTitle: formValue.heroTitle,
         heroSubtitle: formValue.heroSubtitle,
 
@@ -140,12 +134,15 @@ export class AdminSettingsComponent implements OnInit {
         youtubeUrl: formValue.socialLinks?.youtubeUrl
       };
 
-      await this.appwrite.updateSettings(settingsData);
-      this.toast.success('Settings updated successfully');
+      if (this.selectedFile) {
+        settingsData.heroImage = this.selectedFile;
+      }
 
-      this.initialValues = this.settingsForm.value;
-      this.formChanged.set(false);
-      this.imageChanged.set(false);
+      await this.pocketbase.updateSettings(settingsData);
+      this.toast.success('Settings updated successfully');
+      
+      // Reload to get new file name if changed
+      await this.loadSettings();
 
     } catch (error) {
       this.toast.error('Error saving settings');
@@ -157,8 +154,13 @@ export class AdminSettingsComponent implements OnInit {
 
   protected resetSettings() {
     this.settingsForm.patchValue(this.initialValues);
-    this.heroPreview.set(this.initialValues.heroImage ?
-      this.appwrite.getFileView(this.initialValues.heroImage) : null);
+    
+    if (this.initialValues.heroImage && this.currentSettingsRecord) {
+        this.heroPreview.set(this.pocketbase.getImageUrl(this.currentSettingsRecord, this.initialValues.heroImage));
+    } else {
+        this.heroPreview.set(null);
+    }
+    
     this.selectedFile = null;
     this.formChanged.set(false);
     this.imageChanged.set(false);

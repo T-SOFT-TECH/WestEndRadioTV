@@ -1,9 +1,11 @@
 export interface News {
-  $id?: string;
+  id?: string;
+  collectionId?: string;
+  collectionName?: string;
   title: string;
   content: string;
   summary: string;
-  imageId?: string;
+  image?: string;
   publishDate: string;
   author: string;
   tags: string[];
@@ -11,5 +13,3 @@ export interface News {
   active: boolean;
   slug: string;
 }
-
-

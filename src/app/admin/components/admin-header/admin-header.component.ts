@@ -1,8 +1,8 @@
-import {Component, HostListener, inject, Input, signal} from '@angular/core';
-import {AppwriteService} from '../../../services/appwrite.service';
-import {HotToastService} from '@ngxpert/hot-toast';
-import {Router, RouterLink} from '@angular/router';
-import {AutoAnimationDirective} from '../../../Directives/auto-Animate.directive';
+import { Component, HostListener, inject, Input, signal } from '@angular/core';
+import { PocketbaseService } from '../../../services/pocketbase.service';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { Router, RouterLink } from '@angular/router';
+import { AutoAnimationDirective } from '../../../Directives/auto-Animate.directive';
 
 @Component({
   selector: 'app-admin-header',
@@ -17,7 +17,7 @@ export class AdminHeaderComponent {
   @Input() title = 'Dashboard';
   @Input() breadcrumb?: string;
 
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private toast = inject(HotToastService);
   private router = inject(Router);
 
@@ -29,7 +29,7 @@ export class AdminHeaderComponent {
   }
 
   private async loadUserData() {
-    const user = await this.appwrite.getCurrentUser();
+    const user = await this.pocketbase.getCurrentUser();
     this.currentUser.set(user);
   }
 
@@ -57,7 +57,7 @@ export class AdminHeaderComponent {
   }
 
   async logout() {
-    const success = await this.appwrite.logout();
+    const success = await this.pocketbase.logout();
     if (success) {
       this.toast.success('Logged out successfully');
       await this.router.navigate(['/']);

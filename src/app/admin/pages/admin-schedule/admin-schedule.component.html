@@ -58,14 +58,11 @@
                      cdkDragBoundary=".schedule-grid">
 
                   <!-- Background Image with Overlay -->
-                  @if (slot.shows[day.toLowerCase()]?.imageId) {
-                    <div class="absolute inset-0">
-                      <img [src]="getImageUrl(slot.shows[day.toLowerCase()]!.imageId!)"
-                           class="w-full h-full object-cover"
-                           alt="Show background">
-                      <div class="absolute inset-0"
-                           [ngClass]="slot.shows[day.toLowerCase()]?.active ? 'bg-primary-600/70 ' : ' bg-status-error/20 '">
-                      </div>
+                  @if (slot.shows[day.toLowerCase()]?.image) {
+                    <div class="h-8 w-8 rounded overflow-hidden flex-shrink-0">
+                      <img [src]="getImageUrl(slot.shows[day.toLowerCase()]!)"
+                           [alt]="slot.shows[day.toLowerCase()]?.title"
+                           class="h-full w-full object-cover">
                     </div>
                   } @else {
                     <!-- Fallback gradient background when no image -->

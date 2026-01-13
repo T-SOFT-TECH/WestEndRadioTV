@@ -2,11 +2,13 @@
 
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppwriteService } from '../../../services/appwrite.service';
+import { PocketbaseService } from '../../../services/pocketbase.service';
 import { CdkDragDrop, CdkDragEnter, CdkDragExit, DragDropModule } from '@angular/cdk/drag-drop';
 
 interface ScheduleShow {
-  $id: string;
+  id: string;
+  collectionId?: string;
+  collectionName?: string;
   title: string;
   host: string;
   description: string;
@@ -14,7 +16,7 @@ interface ScheduleShow {
   endTime: string;
   days: string[];
   active: boolean;
-  imageId?: string;
+  image?: string;
 }
 
 interface TimeSlot {
@@ -36,7 +38,7 @@ interface TimeSlot {
 
 })
 export class AdminScheduleComponent implements OnInit {
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   protected weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   protected timeSlots = signal<TimeSlot[]>([]);
   protected dropListIds: string[] = [];
@@ -62,8 +64,20 @@ export class AdminScheduleComponent implements OnInit {
 
   async loadSchedule() {
     try {
-      const shows = await this.appwrite.getShows();
-      this.generateTimeSlots(shows.documents as unknown as ScheduleShow[]);
+      const shows = await this.pocketbase.getShows();
+      this.generateTimeSlots(shows.documents.map(doc => ({
+        id: doc.id,
+        collectionId: doc.collectionId,
+        collectionName: doc.collectionName,
+        title: doc['title'],
+        host: doc['host'],
+        description: doc['description'],
+        startTime: doc['startTime'],
+        endTime: doc['endTime'],
+        days: doc['days'],
+        active: doc['active'],
+        image: doc['image']
+      } as ScheduleShow)));
       this.generateDropListIds();
     } catch (error) {
       console.error('Error loading schedule:', error);
@@ -127,7 +141,7 @@ export class AdminScheduleComponent implements OnInit {
     const newStartTime = `${newTime.split(':')[0]}:${originalMinutes}`;
     const newEndTime = this.addMinutesToTime(newStartTime, duration);
 
-    if (show.$id) {
+    if (show.id) {
       const updatedShow = {
         ...show,
         startTime: newStartTime,
@@ -147,11 +161,11 @@ export class AdminScheduleComponent implements OnInit {
         updatedSlots[oldSlotIndex].shows[oldDay] = null;
         updatedSlots[newSlotIndex].shows[newDay] = {
           ...updatedShow,
-          $id: show.$id
+          id: show.id
         };
 
         this.timeSlots.set(updatedSlots);
-        this.updateShowSchedule(show.$id, updatedShow);
+        this.updateShowSchedule(show.id, updatedShow);
       }
     }
   }
@@ -180,8 +194,8 @@ export class AdminScheduleComponent implements OnInit {
       days: this.pendingMove.show.days.filter((d: string) => d !== this.pendingMove.oldDay)
     };
 
-    if (this.pendingMove.show.$id) {
-      this.updateShowSchedule(this.pendingMove.show.$id, updatedOriginalShow);
+    if (this.pendingMove.show.id) {
+      this.updateShowSchedule(this.pendingMove.show.id, updatedOriginalShow);
       this.createShow(newShow);
     }
 
@@ -210,8 +224,8 @@ export class AdminScheduleComponent implements OnInit {
       ]
     };
 
-    if (this.pendingMove.show.$id) {
-      this.updateShowSchedule(this.pendingMove.show.$id, updatedShow);
+    if (this.pendingMove.show.id) {
+      this.updateShowSchedule(this.pendingMove.show.id, updatedShow);
     }
 
     this.cleanupMove();
@@ -269,9 +283,9 @@ export class AdminScheduleComponent implements OnInit {
       this.timeSlots.set(updatedSlots);
     }
 
-    if (show.$id) {
+    if (show.id) {
       try {
-        await this.updateShowSchedule(show.$id, updatedShow);
+        await this.updateShowSchedule(show.id, updatedShow);
       } catch (error) {
         console.error('Error updating show time:', error);
         await this.loadSchedule();
@@ -310,8 +324,8 @@ export class AdminScheduleComponent implements OnInit {
       : 'bg-status-error/20 hover:bg-status-error/30 border border-status-error/30';
   }
 
-  protected getImageUrl(imageId: string): string {
-    return this.appwrite.getFileView(imageId);
+  protected getImageUrl(show: ScheduleShow): string {
+    return show.image ? this.pocketbase.getImageUrl(show, show.image) : '';
   }
 
   protected exportSchedule() {
@@ -328,10 +342,11 @@ export class AdminScheduleComponent implements OnInit {
         endTime: showData.endTime!,
         days: showData.days!,
         active: showData.active!,
-        imageId: showData.imageId
+        // We can't duplicate image file via filename string in API
+        // image: showData.image 
       };
 
-      await this.appwrite.createShow(newShowData);
+      await this.pocketbase.createShow(newShowData);
       await this.loadSchedule();
     } catch (error) {
       console.error('Error creating show:', error);
@@ -348,10 +363,10 @@ export class AdminScheduleComponent implements OnInit {
         endTime: updatedShow.endTime!,
         days: updatedShow.days!,
         active: updatedShow.active!,
-        imageId: updatedShow.imageId
+        // image: updatedShow.image
       };
 
-      await this.appwrite.updateShow(showId, cleanedData);
+      await this.pocketbase.updateShow(showId, cleanedData);
     } catch (error) {
       console.error('Error updating show schedule:', error);
       await this.loadSchedule();

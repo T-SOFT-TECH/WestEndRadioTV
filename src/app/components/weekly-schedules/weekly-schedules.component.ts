@@ -29,8 +29,9 @@ export class WeeklySchedulesComponent {
 
   // Filtered shows based on active day
   protected shows = computed(() => {
+    const activeDayLower = this.activeDay().toLowerCase();
     return this.allShows().filter(show =>
-      show.days.includes(this.activeDay().toLowerCase())
+      show.days.some(day => day.toLowerCase() === activeDayLower)
     );
   });
 

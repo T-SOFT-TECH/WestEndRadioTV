@@ -1,9 +1,9 @@
-import {Component, inject, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AutoAnimationDirective} from '../../Directives/auto-Animate.directive';
-import {AppwriteService} from '../../services/appwrite.service';
-import {HotToastService} from '@ngxpert/hot-toast';
-import {SiteService} from '../../services/site.service';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AutoAnimationDirective } from '../../Directives/auto-Animate.directive';
+import { PocketbaseService } from '../../services/pocketbase.service';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { SiteService } from '../../services/site.service';
 
 @Component({
   selector: 'app-contact',
@@ -17,7 +17,7 @@ import {SiteService} from '../../services/site.service';
 export class ContactComponent {
 
   private fb = inject(FormBuilder);
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private siteService = inject(SiteService);
   private toast = inject(HotToastService);
   protected isSubmitting = signal(false);
@@ -47,7 +47,7 @@ export class ContactComponent {
     try {
       const formData = this.contactForm.value;
 
-      await this.appwrite.createContactMessage({
+      await this.pocketbase.createContactMessage({
         firstName: formData.firstName!,
         lastName: formData.lastName!,
         email: formData.email!,

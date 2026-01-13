@@ -4,16 +4,17 @@ import {AzuracastResponse, CurrentTrack} from '../model/azuracast.model';
 import {Observable} from 'rxjs';
 import {Listener} from '../model/listeners.model';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AzuracastService {
-  private readonly AZURACAST_WS_URL = 'wss://tsoft.stream/api/live/nowplaying/websocket';
-  private readonly AZURACAST_URL = 'https://tsoft.stream';
-  private readonly STATION_ID = 'westend_radio_tv';
-  private readonly API_KEY = '8fe3697a1e1fa55b:ae3c046191c39f0260307692a17554a7';
+  private readonly AZURACAST_WS_URL = environment.azuracast.wsUrl;
+  private readonly AZURACAST_URL = environment.azuracast.url;
+  private readonly STATION_ID = environment.azuracast.stationId;
+  private readonly API_KEY = environment.azuracast.apiKey;
 
   private ws: WebSocket | null = null;
   private platformId = inject(PLATFORM_ID);

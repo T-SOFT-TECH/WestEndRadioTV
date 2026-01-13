@@ -13,57 +13,46 @@
     </div>
   </div>
 
-  <swiper-container
-    effect="coverflow"
-    grab-cursor="true"
-    centered-slides="true"
-    slides-per-view="3"
-    coverflow-effect-rotate="70"
-    coverflow-effect-stretch="50"
-    coverflow-effect-depth="100"
-    coverflow-effect-modifier="1"
-    coverflow-effect-slide-shadows="true"
-    autoplay-delay="2500"
-    loop="true">
+  <swiper-container effect="coverflow" grab-cursor="true" centered-slides="true" slides-per-view="3"
+    coverflow-effect-rotate="70" coverflow-effect-stretch="50" coverflow-effect-depth="100"
+    coverflow-effect-modifier="1" coverflow-effect-slide-shadows="true" autoplay-delay="2500" loop="true">
 
-    @for(show of featuredShows(); track show.$id){
-      <swiper-slide class="h-52">
-        <div class="relative h-[28rem] w-full">
-          @if (show.imageId) {
-            <img [src]="getImageUrl(show)"
-                 [alt]="show.title"
-                 class="h-full w-full object-cover">
-          }
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-            <div class="absolute bottom-0 left-0 w-full p-16">
-              <div class="flex gap-2 mb-8">
-                <span class="px-3 py-1 bg-primary-500 text-xs font-medium uppercase rounded">Dance</span>
-                <span class="px-3 py-1 bg-white/10 backdrop-blur-sm text-xs font-medium uppercase rounded">Coming Next</span>
-              </div>
+    @for(show of featuredShows(); track show.id){
+    <swiper-slide class="h-52">
+      <div class="relative h-[28rem] w-full">
+        @if (show.image) {
+        <img [src]="getImageUrl(show)" [alt]="show.title" class="h-full w-full object-cover">
+        }
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+          <div class="absolute bottom-0 left-0 w-full p-16">
+            <div class="flex gap-2 mb-8">
+              <span class="px-3 py-1 bg-primary-500 text-xs font-medium uppercase rounded">Dance</span>
+              <span class="px-3 py-1 bg-white/10 backdrop-blur-sm text-xs font-medium uppercase rounded">Coming
+                Next</span>
+            </div>
 
-              <!-- Clickable title with hover effect -->
-              <a [routerLink]="['/shows', show.$id]"
-                 class="group inline-block">
-                <h2 class="text-[2rem] font-bold text-white leading-none mb-3
+            <!-- Clickable title with hover effect -->
+            <a [routerLink]="['/shows', show.slug]" class="group inline-block">
+              <h2 class="text-[2rem] font-bold text-white leading-none mb-3
                            group-hover:text-primary-400 transition-colors duration-300
                            group-hover:underline">
-                  {{show.title}}
-                </h2>
-              </a>
+                {{show.title}}
+              </h2>
+            </a>
 
-              <h3 class="text-xl text-white/90 mb-6">By {{show.host}}</h3>
+            <h3 class="text-xl text-white/90 mb-6">By {{show.host}}</h3>
 
-              <div class="flex items-center text-white/70">
-                <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>{{show.startTime}} - {{show.endTime}}</span>
-              </div>
+            <div class="flex items-center text-white/70">
+              <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{{show.startTime}} - {{show.endTime}}</span>
             </div>
           </div>
         </div>
-      </swiper-slide>
+      </div>
+    </swiper-slide>
     }
   </swiper-container>
 </div>

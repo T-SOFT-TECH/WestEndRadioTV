@@ -26,7 +26,7 @@ export class FeaturedShowsComponent {
 
 
   getImageUrl(show: Show): string {
-    return show.imageId ? this.siteService.getImageUrl(show.imageId) || '' : '';
+    return show.image ? this.siteService.getImageUrl(show, show.image) || '' : '';
   }
 
 

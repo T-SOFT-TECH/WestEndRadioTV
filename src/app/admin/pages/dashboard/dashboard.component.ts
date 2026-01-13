@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import { AppwriteService } from '../../../services/appwrite.service';
+import { AfterViewInit, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { PocketbaseService } from '../../../services/pocketbase.service';
 import { AzuracastService } from '../../../services/azuracast.service';
-import {NgIcon, provideIcons} from '@ng-icons/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import { Chart, registerables } from 'chart.js';
 import {
   heroUsers,
@@ -11,7 +11,7 @@ import {
   heroArrowTrendingUp,
   heroArrowTrendingDown
 } from '@ng-icons/heroicons/outline';
-import {FormatTimeAgoPipe} from '../../../pipe/format-time-ago.pipe';
+import { FormatTimeAgoPipe } from '../../../pipe/format-time-ago.pipe';
 
 
 // Register Chart.js components
@@ -57,7 +57,7 @@ interface DashboardStats {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private azuracast = inject(AzuracastService);
 
   // Stats and Data
@@ -117,16 +117,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private async loadDashboardData() {
     try {
       const [shows, tracks] = await Promise.all([
-        this.appwrite.getShows(),
-        this.appwrite.getTracks()
+        this.pocketbase.getShows(),
+        this.pocketbase.getTracks()
       ]);
 
       const azuracastData = this.azuracast.nowPlayingData();
 
       this.stats.set({
-        totalShows: shows.total,
+        totalShows: shows.documents.length,
         activeShows: shows.documents.filter(show => show['active']).length,
-        totalTracks: tracks.total,
+        totalTracks: tracks.documents.length,
         listeners: {
           current: azuracastData?.listeners.current ?? 0,
           total: azuracastData?.listeners.total ?? 0,
@@ -259,7 +259,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
             },
             ticks: {
               color: 'rgba(255, 255, 255, 0.6)',
-              callback: function(value: number | string) {
+              callback: function (value: number | string) {
                 const label = String(this.getLabelForValue(Number(value)));
                 return label.length > 15 ? label.substring(0, 15) + '...' : label;
               }

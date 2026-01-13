@@ -1,17 +1,16 @@
 // guards/role.guard.ts
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
-import { AppwriteService } from '../services/appwrite.service';
+import { PocketbaseService } from '../services/pocketbase.service';
 
 export const roleGuard: CanActivateFn = async () => {
   const router = inject(Router);
-  const appwrite = inject(AppwriteService);
-  //const toast = inject(HotToastService);
+  const pocketbase = inject(PocketbaseService);
 
   try {
-    const user = await appwrite.getCurrentUser();
-    if (!user || !user.labels?.includes('admin')) {
-      // Use setTimeout to avoid the error
+    const user = await pocketbase.getCurrentUser();
+    // PocketBase uses different role checking - check for admin in user record
+    if (!user || !(user as any).admin) {
       setTimeout(() => {
         console.error('Access denied. Admin privileges required.');
       });

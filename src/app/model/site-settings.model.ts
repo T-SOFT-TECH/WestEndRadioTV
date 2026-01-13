@@ -1,5 +1,8 @@
 // interfaces/settings.model.ts
 export interface SiteSettings {
+  id?: string;
+  collectionId?: string;
+  collectionName?: string;
   stationName: string;
   stationSlogan: string;
   streamUrl: string;

@@ -1,7 +1,6 @@
-import {Component, HostListener, inject, OnDestroy, OnInit, signal} from '@angular/core';
-import { RouterLink, RouterLinkActive} from '@angular/router';
-import {AppwriteService} from '../../../services/appwrite.service';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Component, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { PocketbaseService } from '../../../services/pocketbase.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   heroHome,
@@ -10,7 +9,9 @@ import {
   heroNewspaper,
   heroMusicalNote,
   heroClock,
-  heroCog
+  heroCog,
+  heroEnvelope,
+  heroUsers
 } from '@ng-icons/heroicons/outline';
 
 
@@ -23,6 +24,7 @@ interface SidebarStats {
 
 @Component({
   selector: 'app-admin-sidebar',
+  standalone: true,
   imports: [
     RouterLink,
     RouterLinkActive,
@@ -36,7 +38,9 @@ interface SidebarStats {
       heroNewspaper,
       heroMusicalNote,
       heroClock,
-      heroCog
+      heroCog,
+      heroEnvelope,
+      heroUsers
     })
   ],
   templateUrl: './admin-sidebar.component.html',
@@ -44,7 +48,7 @@ interface SidebarStats {
 })
 export class AdminSidebarComponent implements OnInit, OnDestroy {
 
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
 
   protected isSidebarOpen = signal(false);
   protected sidebarStats = signal<SidebarStats>({
@@ -89,6 +93,12 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
       exact: false
     },
     {
+      path: '/admin/messages',
+      label: 'Inbox',
+      icon: 'heroEnvelope',
+      exact: false
+    },
+    {
       path: '/admin/tracks',
       label: 'Tracks',
       icon: 'heroMusicalNote',
@@ -109,7 +119,6 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
   ];
 
   constructor() {
-    // Set initial sidebar state based on screen size
     if (typeof window !== 'undefined') {
       this.isSidebarOpen.set(window.innerWidth >= 1024);
     }
@@ -135,11 +144,9 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
   private async loadSidebarStats() {
     this.isLoading.set(true);
     try {
-      // Cache the promises
-      const showsPromise = this.appwrite.getShows();
-      const tracksPromise = this.appwrite.getTracks();
+      const showsPromise = this.pocketbase.getShows();
+      const tracksPromise = this.pocketbase.getTracks();
 
-      // Start both requests concurrently
       const [shows, tracks] = await Promise.all([showsPromise, tracksPromise]);
 
       const startTime = new Date();
@@ -147,11 +154,9 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
 
       this.sidebarStats.update(current => ({
         ...current,
-        showsCount: shows.total,
-        tracksCount: tracks.total,
-        uptime: this.calculateUptime(startTime),
-        // Keep existing listeners if loading fails
-        listeners: current.listeners
+        showsCount: shows.documents.length,
+        tracksCount: tracks.documents.length,
+        uptime: this.calculateUptime(startTime)
       }));
     } catch (error) {
       console.error('Error loading sidebar stats:', error);
@@ -166,10 +171,6 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
       this.loadSidebarStats();
     }, 60000);
   }
-
-
-
-
 
   protected toggleSidebar(): void {
     this.isSidebarOpen.update(state => !state);
@@ -196,7 +197,6 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
     }
   }
 
-// Add cleanup
   private updateInterval: any;
 
   ngOnDestroy() {
@@ -204,6 +204,4 @@ export class AdminSidebarComponent implements OnInit, OnDestroy {
       clearInterval(this.updateInterval);
     }
   }
-
-
 }

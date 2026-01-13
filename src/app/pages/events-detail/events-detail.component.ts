@@ -1,12 +1,12 @@
-import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {SiteService} from '../../services/site.service';
-import {Events} from '../../model/events.model';
-import {DatePipe, UpperCasePipe} from '@angular/common';
-import {AppwriteService} from '../../services/appwrite.service';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { SiteService } from '../../services/site.service';
+import { Events } from '../../model/events.model';
+import { DatePipe, UpperCasePipe } from '@angular/common';
+import { PocketbaseService } from '../../services/pocketbase.service';
 import e from 'express';
-import {SeoService} from '../../services/seo.service';
-import {SafeHtmlPipe} from '../../pipe/safe-html.pipe';
+import { SeoService } from '../../services/seo.service';
+import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
 
 @Component({
   selector: 'app-events-detail',
@@ -19,13 +19,13 @@ import {SafeHtmlPipe} from '../../pipe/safe-html.pipe';
   templateUrl: './events-detail.component.html',
   styleUrl: './events-detail.component.scss'
 })
-export class EventsDetailComponent  {
+export class EventsDetailComponent {
 
   private route = inject(ActivatedRoute);
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   protected siteService = inject(SiteService);
   private seo = inject(SeoService);
-  protected events = signal<Events | null>(null);
+  protected eventSignal = signal<Events | null>(null);
   protected relatedEvents = signal<Events[]>([]);
 
   constructor() {
@@ -33,7 +33,7 @@ export class EventsDetailComponent  {
     effect(() => {
       const slug = this.route.snapshot.params['slug'];
       const event = this.siteService.events().find(e => e.slug === slug);
-      this.events.set(event || null);
+      this.eventSignal.set(event || null);
 
       // Add SEO update here, after the event is loaded
       if (event) {
@@ -41,16 +41,16 @@ export class EventsDetailComponent  {
           title: `${event.title} - WestEndRadioTV Events`,
           description: event.description,
           keywords: `${event.category}, events, ${event.location}`,
-          ogImage: event.imageId ? this.siteService.getImageUrl(event.imageId) : 'default-event-image.jpg'
+          ogImage: event.image ? this.siteService.getImageUrl(event, event.image) : 'default-event-image.jpg'
         });
 
-        this.loadRelatedEvents(event.category, event.$id!);
+        this.loadRelatedEvents(event.category, event.id!);
       }
     });
   }
 
   private async loadRelatedEvents(category: string, currentEventId: string) {
-    const related = await this.appwrite.getRelatedEvents(category, currentEventId);
+    const related = await this.pocketbase.getRelatedEvents(category, currentEventId);
     this.relatedEvents.set(related.documents as unknown as Events[]);
   }
 

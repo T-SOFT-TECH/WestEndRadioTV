@@ -1,9 +1,9 @@
-import {inject, Injectable, signal} from '@angular/core';
-import { AppwriteService } from './appwrite.service';
-import {Show} from '../model/show.model';
-import {News} from '../model/news.model';
-import {Events} from '../model/events.model';
-import {SiteSettings} from '../model/site-settings.model';
+import { inject, Injectable, signal } from '@angular/core';
+import { PocketbaseService } from './pocketbase.service';
+import { Show } from '../model/show.model';
+import { News } from '../model/news.model';
+import { Events } from '../model/events.model';
+import { SiteSettings } from '../model/site-settings.model';
 
 
 
@@ -12,10 +12,10 @@ import {SiteSettings} from '../model/site-settings.model';
   providedIn: 'root'
 })
 export class SiteService {
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   settings = signal<SiteSettings | null>(null);
-   featuredShows = signal<Show[]>([]);
-   shows = signal<Show[]>([]);
+  featuredShows = signal<Show[]>([]);
+  shows = signal<Show[]>([]);
   news = signal<News[]>([]);
   events = signal<Events[]>([]);
 
@@ -27,44 +27,30 @@ export class SiteService {
   }
 
   private async loadSettings() {
-    const settings = await this.appwrite.getSettings();
-    this.settings.set({
-      stationName: settings['stationName'],
-      stationSlogan: settings['stationSlogan'],
-      streamUrl: settings['streamUrl'],
-      heroImage: settings['heroImage'],
-        email: settings['email'],
-        phone: settings['phone'],
-        address: settings['address'],
-        businessHours: settings['businessHours'],
-        supportEmail: settings['supportEmail'],
-
-
-
-        facebookUrl: settings['facebookUrl'],
-        twitterUrl: settings['twitterUrl'],
-        instagramUrl: settings['instagramUrl'],
-        youtubeUrl: settings['youtubeUrl']
-    } as SiteSettings);
+    const settings = await this.pocketbase.getSettings();
+    // Store the full record to preserve metadata like collectionId/id
+    this.settings.set(settings as unknown as SiteSettings);
   }
 
-  getImageUrl(imageId: string): string | undefined {
-    return this.appwrite.getFileView(imageId);
+  getImageUrl(record: any, filename: string): string {
+    if (!record || !filename) return '';
+    return this.pocketbase.getImageUrl(record, filename);
   }
 
   private async loadFeaturedShows() {
-    const shows = await this.appwrite.getFeaturedShows();
+    const shows = await this.pocketbase.getFeaturedShows();
     this.featuredShows.set(shows.documents as unknown as Show[]);
   }
 
   private async loadAllShows() {
-    const shows = await this.appwrite.getShows();
+    const shows = await this.pocketbase.getShows();
     this.shows.set(shows.documents as unknown as Show[]);
   }
 
   getShowsByDay(day: string): Show[] {
+    const dayLower = day.toLowerCase();
     return this.shows().filter(show =>
-      show.days.includes(day.toLowerCase()) &&
+      show.days.some(d => d.toLowerCase() === dayLower) &&
       show.active
     ).sort((a, b) =>
       a.startTime.localeCompare(b.startTime)
@@ -73,8 +59,8 @@ export class SiteService {
 
   private async loadNewsAndEvents() {
     const [news, events] = await Promise.all([
-      this.appwrite.getNews(),
-      this.appwrite.getEvents()
+      this.pocketbase.getNews(),
+      this.pocketbase.getEvents()
     ]);
     this.news.set(news.documents as unknown as News[]);
     this.events.set(events.documents as unknown as Events[]);

@@ -13,9 +13,10 @@
       @let event = targetEvent();
 
       @if (event) {
-        <h3 class="text-4xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent mb-12">
-          {{event.title}}
-        </h3>
+      <h3
+        class="text-4xl font-bold bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent mb-12">
+        {{event.title}}
+      </h3>
       }
 
       <!-- Countdown -->
@@ -41,75 +42,78 @@
 
 
     <div class="space-y-6 max-w-6xl mx-auto px-4 sm:px-6">
-      @for (event of events(); track event.$id) {
-        <div class="group relative min-h-[400px] sm:min-h-[300px] md:h-48 bg-gradient-to-r from-background-surface/30 to-background-surface/10
+      @for (event of events(); track event.id) {
+      <div class="group relative min-h-[400px] sm:min-h-[300px] md:h-48 bg-gradient-to-r from-background-surface/30 to-background-surface/10
            backdrop-blur-sm rounded-2xl overflow-hidden hover:from-background-surface/40
            hover:to-background-surface/20 transition-all duration-300 border border-white/5">
-          <!-- Background Image & Overlay -->
-          @if (event.imageId) {
-            <div class="absolute inset-0 md:left-0 md:w-2/5 h-full">
-              <img [src]="siteService.getImageUrl(event.imageId)"
-                   [alt]="event.title"
-                   loading="lazy"
-                   class="w-full h-full object-cover object-center">
-              <!-- Enhanced overlay with multiple gradients -->
-              <div class="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-background-dark/80 via-background-dark/60 to-background-surface/95"></div>
-            </div>
-          }
-
-          <!-- Date - Repositioned for mobile -->
-          <div class="absolute top-6 left-6 md:left-12 md:top-1/2 md:-translate-y-1/2 text-center z-10
-                  bg-background-dark/50 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none">
-            <span class="text-4xl md:text-5xl font-bold text-white block leading-none">{{event.startDate | date:'dd'}}</span>
-            <span class="text-lg md:text-xl text-primary-400 uppercase block">{{event.startDate | date:'MMM'}}</span>
-            <span class="text-xs md:text-sm text-text-secondary block mt-1">{{event.startDate | date:'yyyy'}}</span>
-          </div>
-
-          <!-- Content -->
-          <div class="absolute bottom-0 left-0 right-0 md:relative md:ml-[45%] p-6 md:p-8
-                  flex flex-col md:flex-row md:items-center md:justify-between md:h-full">
-            <div class="flex-1 mb-6 md:mb-0 md:mr-8">
-              <div class="flex flex-wrap items-center gap-3 mb-3">
-                @if (event.category) {
-                  <span class="px-3 py-1 bg-primary-500/20 text-primary-400 text-sm rounded-full">
-                {{event.category}}
-              </span>
-                }
-                <span class="text-white text-sm md:text-lg">{{event.startDate | date:'shortTime'}}</span>
-              </div>
-
-              <h3 class="text-lg md:text-xl font-bold text-white group-hover:text-primary-400 transition-colors mb-4 leading-tight">
-                {{event.title}}
-              </h3>
-
-              <div class="flex flex-col gap-2 text-white/80 md:text-black">
-                <div class="flex items-start gap-2">
-                  <svg class="w-4 md:w-5 h-4 md:h-5 mt-0.5 flex-shrink-0 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                  </svg>
-                  <span class="text-sm md:text-base line-clamp-2">{{event.location}}</span>
-                </div>
-
-                @if (event.organizer) {
-                  <div class="flex items-start gap-2">
-                    <svg class="w-4 md:w-5 h-4 md:h-5 mt-0.5 flex-shrink-0 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    <span class="text-sm md:text-base line-clamp-1">{{event.organizer}}</span>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <a [routerLink]="['/events', event.slug]"
-               class="w-full md:w-auto px-6 md:px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white text-center
-                  rounded-full transition-colors whitespace-nowrap text-sm md:text-base">
-              MORE INFO
-            </a>
+        <!-- Background Image & Overlay -->
+        @if (event.image) {
+        <div class="absolute inset-0 md:left-0 md:w-2/5 h-full">
+          <img [src]="siteService.getImageUrl(event, event.image || '')" [alt]="event.title" loading="lazy"
+            class="w-full h-full object-cover object-center">
+          <!-- Enhanced overlay with multiple gradients -->
+          <div
+            class="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-background-dark/80 via-background-dark/60 to-background-surface/95">
           </div>
         </div>
+        }
+
+        <!-- Date - Repositioned for mobile -->
+        <div class="absolute top-6 left-6 md:left-12 md:top-1/2 md:-translate-y-1/2 text-center z-10
+                  bg-background-dark/50 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none">
+          <span class="text-4xl md:text-5xl font-bold text-white block leading-none">{{event.startDate |
+            date:'dd'}}</span>
+          <span class="text-lg md:text-xl text-primary-400 uppercase block">{{event.startDate | date:'MMM'}}</span>
+          <span class="text-xs md:text-sm text-text-secondary block mt-1">{{event.startDate | date:'yyyy'}}</span>
+        </div>
+
+        <!-- Content -->
+        <div class="absolute bottom-0 left-0 right-0 md:relative md:ml-[45%] p-6 md:p-8
+                  flex flex-col md:flex-row md:items-center md:justify-between md:h-full">
+          <div class="flex-1 mb-6 md:mb-0 md:mr-8">
+            <div class="flex flex-wrap items-center gap-3 mb-3">
+              @if (event.category) {
+              <span class="px-3 py-1 bg-primary-500/20 text-primary-400 text-sm rounded-full">
+                {{event.category}}
+              </span>
+              }
+              <span class="text-white text-sm md:text-lg">{{event.startDate | date:'shortTime'}}</span>
+            </div>
+
+            <h3
+              class="text-lg md:text-xl font-bold text-white group-hover:text-primary-400 transition-colors mb-4 leading-tight">
+              {{event.title}}
+            </h3>
+
+            <div class="flex flex-col gap-2 text-white/80 md:text-black">
+              <div class="flex items-start gap-2">
+                <svg class="w-4 md:w-5 h-4 md:h-5 mt-0.5 flex-shrink-0 text-pink-500" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                <span class="text-sm md:text-base line-clamp-2">{{event.location}}</span>
+              </div>
+
+              @if (event.organizer) {
+              <div class="flex items-start gap-2">
+                <svg class="w-4 md:w-5 h-4 md:h-5 mt-0.5 flex-shrink-0 text-pink-500" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="text-sm md:text-base line-clamp-1">{{event.organizer}}</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <a [routerLink]="['/events', event.slug]" class="w-full md:w-auto px-6 md:px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white text-center
+                  rounded-full transition-colors whitespace-nowrap text-sm md:text-base">
+            MORE INFO
+          </a>
+        </div>
+      </div>
       }
     </div>
 

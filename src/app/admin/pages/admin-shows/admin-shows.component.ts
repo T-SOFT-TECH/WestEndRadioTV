@@ -1,8 +1,8 @@
-import {Component, inject, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {AppwriteService} from '../../../services/appwrite.service';
-import {environment} from '../../../../environments/environment';
-import {Show} from '../../../model/show.model';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PocketbaseService } from '../../../services/pocketbase.service';
+import { environment } from '../../../../environments/environment';
+import { Show } from '../../../model/show.model';
 
 @Component({
   selector: 'app-admin-shows',
@@ -14,7 +14,7 @@ import {Show} from '../../../model/show.model';
 })
 export class AdminShowsComponent {
 
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private fb = inject(FormBuilder);
 
   protected shows = signal<Show[]>([]);
@@ -49,17 +49,19 @@ export class AdminShowsComponent {
 
   protected async loadShows() {
     try {
-      const response = await this.appwrite.getShows();
-      // Map Appwrite documents to Show interface
+      const response = await this.pocketbase.getShows();
+      // Map PocketBase records to Show interface
       const shows: Show[] = response.documents.map(doc => ({
-        $id: doc.$id,
+        id: doc.id,
+        collectionId: doc.collectionId,
+        collectionName: doc.collectionName,
         title: doc['title'],
         host: doc['host'],
         description: doc['description'],
         startTime: doc['startTime'],
         endTime: doc['endTime'],
         days: doc['days'],
-        imageId: doc['imageId'],
+        image: doc['image'],
         active: doc['active'],
         featured: doc['featured']
       }));
@@ -67,7 +69,6 @@ export class AdminShowsComponent {
       this.shows.set(shows);
     } catch (error) {
       console.error('Error loading shows:', error);
-      // Handle error (show notification, etc.)
     }
   }
 
@@ -109,8 +110,8 @@ export class AdminShowsComponent {
     });
 
     // Set image preview if exists
-    if (show.imageId) {
-      this.imagePreview.set(this.appwrite.getFileView(show.imageId));
+    if (show.image) {
+      this.imagePreview.set(this.pocketbase.getImageUrl(show, show.image));
     }
 
     this.showModal.set(true);
@@ -121,14 +122,6 @@ export class AdminShowsComponent {
 
     this.isSubmitting.set(true);
     try {
-      let imageId = this.editingShow()?.imageId;
-
-      // Upload new image if selected
-      if (this.selectedFile) {
-        const uploadedFile = await this.appwrite.uploadFile(this.selectedFile);
-        imageId = uploadedFile.$id;
-      }
-
       // Get selected days
       const days = Object.entries(this.showForm.value)
         .filter(([key, value]) =>
@@ -137,7 +130,7 @@ export class AdminShowsComponent {
         )
         .map(([key]) => key);
 
-      const showData = {
+      const showData: any = {
         title: this.showForm.value.title!,
         host: this.showForm.value.host!,
         description: this.showForm.value.description!,
@@ -145,14 +138,17 @@ export class AdminShowsComponent {
         endTime: this.showForm.value.endTime!,
         days,
         featured: this.showForm.value.featured!,
-        active: this.showForm.value.active!,
-        imageId
+        active: this.showForm.value.active!
       };
 
+      if (this.selectedFile) {
+        showData.image = this.selectedFile;
+      }
+
       if (this.editingShow()) {
-        await this.appwrite.updateShow(this.editingShow()!.$id!, showData);
+        await this.pocketbase.updateShow(this.editingShow()!.id!, showData);
       } else {
-        await this.appwrite.createShow(showData);
+        await this.pocketbase.createShow(showData);
       }
 
       await this.loadShows();
@@ -160,7 +156,6 @@ export class AdminShowsComponent {
 
     } catch (error) {
       console.error('Error saving show:', error);
-      // Handle error (show notification, etc.)
     } finally {
       this.isSubmitting.set(false);
     }
@@ -170,11 +165,10 @@ export class AdminShowsComponent {
     if (!confirm('Are you sure you want to delete this show?')) return;
 
     try {
-      await this.appwrite.deleteShow(showId);
+      await this.pocketbase.deleteShow(showId);
       await this.loadShows();
     } catch (error) {
       console.error('Error deleting show:', error);
-      // Handle error (show notification, etc.)
     }
   }
 
@@ -197,12 +191,14 @@ export class AdminShowsComponent {
     this.selectedFile = null;
     const editingShow = this.editingShow();
     if (editingShow) {
-      editingShow.imageId = undefined;
+      editingShow.image = undefined;
+      // Note: To clear file in PB, we usually send 'image': null, but JS SDK might need 'image': '' or null.
+      // For now, UI update is enough, saving null/empty to DB requires specific handling if PB API supports clearing files via update.
     }
   }
 
-  protected getImageUrl(imageId: string ): string {
-    return this.appwrite.getFileView(imageId);
+  protected getImageUrl(show: Show): string {
+    return show.image ? this.pocketbase.getImageUrl(show, show.image) : '';
   }
 
   protected formatDays(days: string[]): string {

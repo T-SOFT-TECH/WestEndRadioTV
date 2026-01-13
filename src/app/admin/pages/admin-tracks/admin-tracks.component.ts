@@ -1,16 +1,18 @@
-import {Component, inject, signal} from '@angular/core';
-import {AppwriteService} from '../../../services/appwrite.service';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {environment} from '../../../../environments/environment';
+import { Component, inject, signal } from '@angular/core';
+import { PocketbaseService } from '../../../services/pocketbase.service';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 interface Track {
-  $id?: string;
+  id?: string;
+  collectionId?: string;
+  collectionName?: string;
   title: string;
   artist: string;
   albumName?: string;
-  coverImageId?: string;
+  image?: string;
   playedAt: string;
-  show: string; // Reference to show ID
+  showId: string;
 }
 
 @Component({
@@ -22,7 +24,7 @@ interface Track {
   styleUrl: './admin-tracks.component.scss'
 })
 export class AdminTracksComponent {
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private fb = inject(FormBuilder);
 
   protected tracks = signal<Track[]>([]);
@@ -37,8 +39,7 @@ export class AdminTracksComponent {
     title: ['', Validators.required],
     artist: ['', Validators.required],
     albumName: [''],
-    show: ['', Validators.required],
-    coverImageId: ['']
+    showId: ['', Validators.required]
   });
 
   async ngOnInit() {
@@ -50,9 +51,19 @@ export class AdminTracksComponent {
 
   protected async loadTracks() {
     try {
-      const response = await this.appwrite.getTracks();
+      const response = await this.pocketbase.getTracks();
       // Cast the response documents to Track type
-      const tracks = response.documents as unknown as Track[];
+      const tracks: Track[] = response.documents.map(doc => ({
+        id: doc.id,
+        collectionId: doc.collectionId,
+        collectionName: doc.collectionName,
+        title: doc['title'],
+        artist: doc['artist'],
+        albumName: doc['albumName'],
+        showId: doc['showId'],
+        image: doc['image'],
+        playedAt: doc['playedAt']
+      }));
       this.tracks.set(tracks);
     } catch (error) {
       console.error('Error loading tracks:', error);
@@ -61,7 +72,7 @@ export class AdminTracksComponent {
 
   protected async loadShows() {
     try {
-      const response = await this.appwrite.getShows();
+      const response = await this.pocketbase.getShows();
       this.shows.set(response.documents);
     } catch (error) {
       console.error('Error loading shows:', error);
@@ -90,12 +101,11 @@ export class AdminTracksComponent {
       title: track.title,
       artist: track.artist,
       albumName: track.albumName || '',
-      show: track.show,
-      coverImageId: track.coverImageId || ''
+      showId: track.showId
     });
 
-    if (track.coverImageId) {
-      this.imagePreview.set(this.getImageUrl(track.coverImageId));
+    if (track.image) {
+      this.imagePreview.set(this.pocketbase.getImageUrl(track, track.image));
     }
 
     this.showModal.set(true);
@@ -106,23 +116,19 @@ export class AdminTracksComponent {
 
     this.isSubmitting.set(true);
     try {
-      let coverImageId = this.editingTrack()?.coverImageId;
-
-      if (this.selectedFile) {
-        const uploadedFile = await this.appwrite.uploadFile(this.selectedFile);
-        coverImageId = uploadedFile.$id;
-      }
-
-      const trackData = {
+      const trackData: any = {
         ...this.trackForm.value,
-        coverImageId,
         playedAt: this.editingTrack()?.playedAt || new Date().toISOString()
       };
 
+      if (this.selectedFile) {
+        trackData.image = this.selectedFile;
+      }
+
       if (this.editingTrack()) {
-        await this.appwrite.updateTrack(this.editingTrack()!.$id!, trackData);
+        await this.pocketbase.updateTrack(this.editingTrack()!.id!, trackData);
       } else {
-        await this.appwrite.createTrack(trackData);
+        await this.pocketbase.createTrack(trackData);
       }
 
       await this.loadTracks();
@@ -138,7 +144,7 @@ export class AdminTracksComponent {
     if (!confirm('Are you sure you want to delete this track?')) return;
 
     try {
-      await this.appwrite.deleteTrack(trackId);
+      await this.pocketbase.deleteTrack(trackId);
       await this.loadTracks();
     } catch (error) {
       console.error('Error deleting track:', error);
@@ -157,8 +163,19 @@ export class AdminTracksComponent {
     }
   }
 
-  protected getImageUrl(imageId: string): string {
-    return this.appwrite.getFileView(imageId);
+  protected removeImage(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.imagePreview.set(null);
+    this.selectedFile = null;
+    const editing = this.editingTrack();
+    if (editing) {
+      editing.image = undefined;
+    }
+  }
+
+  protected getImageUrl(track: Track): string {
+    return track.image ? this.pocketbase.getImageUrl(track, track.image) : '';
   }
 
   protected formatDate(date: string): string {

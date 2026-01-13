@@ -1,9 +1,9 @@
-import {Component, inject, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {HotToastService} from '@ngxpert/hot-toast';
-import {AppwriteService} from '../../services/appwrite.service';
+import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { PocketbaseService } from '../../services/pocketbase.service';
 import { Router } from '@angular/router';
-import {AutoAnimationDirective} from '../../Directives/auto-Animate.directive';
+import { AutoAnimationDirective } from '../../Directives/auto-Animate.directive';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,7 @@ import {AutoAnimationDirective} from '../../Directives/auto-Animate.directive';
 export class LoginComponent {
 
   private fb = inject(FormBuilder);
-  private appwrite = inject(AppwriteService);
+  private pocketbase = inject(PocketbaseService);
   private router = inject(Router);
   private toast = inject(HotToastService);
 
@@ -40,7 +40,7 @@ export class LoginComponent {
     this.isSubmitting.set(true);
     try {
       const { email, password } = this.loginForm.value;
-      await this.appwrite.login(email!, password!);
+      await this.pocketbase.login(email!, password!);
 
       this.toast.success('Successfully logged in');
       await this.router.navigate(['/admin']);
