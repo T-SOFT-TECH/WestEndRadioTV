@@ -53,3 +53,5 @@ Thumbs.db
 /backend/pb_data/logs/
 /backend/pb_data/storage/
 !/backend/pb_data/types.d.ts
+
+.runtime

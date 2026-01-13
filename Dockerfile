@@ -11,6 +11,9 @@ RUN npm install
 # Copy the rest of the app
 COPY . .
 
+# Explicitly remove any .runtime folder that might cause TS errors
+RUN rm -rf .runtime
+
 # Build the Angular app for SSR
 RUN npm run build
 
