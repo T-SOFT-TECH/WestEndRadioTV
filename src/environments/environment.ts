@@ -1,8 +1,8 @@
 
 export const environment = {
-  production: false,
+  production: true,
   pocketbase: {
-    url: 'http://127.0.0.1:8090'
+    url: ''  // Empty = use same origin (window.location.origin)
   },
   azuracast: {
     url: 'https://tsoft.stream',
