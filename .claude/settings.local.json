@@ -6,7 +6,8 @@
       "Bash(timeout 10 tail:*)",
       "Bash(timeout 5 tail:*)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git fetch:*)"
     ]
   }
 }
