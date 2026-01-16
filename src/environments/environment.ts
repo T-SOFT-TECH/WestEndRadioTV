@@ -2,7 +2,9 @@
 export const environment = {
   production: false,
   pocketbase: {
-    url: 'http://127.0.0.1:8090'
+    url: 'http://127.0.0.1:8090',
+    browserUrl: 'http://127.0.0.1:8090',
+    serverUrl: 'http://127.0.0.1:8090'
   },
   azuracast: {
     url: 'https://tsoft.stream',

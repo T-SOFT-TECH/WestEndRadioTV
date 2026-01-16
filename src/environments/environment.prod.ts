@@ -1,8 +1,9 @@
 export const environment = {
     production: true,
     pocketbase: {
-        // Update this to your production PocketBase URL
-        url: process.env['POCKETBASE_URL'] || 'https://api.yourdomain.com'
+        // Browser uses same origin, SSR uses internal Docker network
+        browserUrl: '',  // Same origin for browser
+        serverUrl: 'http://pocketbase:8090'  // Internal Docker network for SSR
     },
     azuracast: {
         url: 'https://tsoft.stream',
