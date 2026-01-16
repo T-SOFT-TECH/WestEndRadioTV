@@ -7,7 +7,8 @@
       "Bash(timeout 5 tail:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(ls -la \"C:\\Users\\USER\\Documents\\WEBSITES\\Online Radio\\westendradiotv-v2\\dist\\westendradiotv-v2\\server\"\" 2>nul || echo \"Checking package.json for start script...\" && cat \"C:UsersUSERDocumentsWEBSITESOnline Radiowestendradiotv-v2package.json\" | findstr /C:\"start\" /C:\"serve \")"
     ]
   }
 }
