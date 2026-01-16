@@ -12,17 +12,20 @@ export class PocketbaseService {
   private platformId = inject(PLATFORM_ID);
 
   constructor() {
-    // Use different URLs for browser vs server (SSR)
-    let pbUrl: string;
-    if (isPlatformBrowser(this.platformId)) {
-      // Browser: use same origin or browserUrl
-      pbUrl = (environment.pocketbase as any)?.browserUrl ?? environment.pocketbase?.url ?? '';
-    } else {
-      // Server (SSR): use internal Docker network URL
-      pbUrl = (environment.pocketbase as any)?.serverUrl ?? environment.pocketbase?.url ?? 'http://127.0.0.1:8090';
+    // Get PocketBase URL from environment, default to same origin in browser
+    let pbUrl = environment.pocketbase?.url || '';
+
+    // If empty string in browser, use current origin
+    if (isPlatformBrowser(this.platformId) && !pbUrl) {
+      pbUrl = window.location.origin;
     }
 
-    this.pb = new PocketBase(pbUrl || 'http://127.0.0.1:8090');
+    // Fallback for development
+    if (!pbUrl) {
+      pbUrl = 'http://127.0.0.1:8090';
+    }
+
+    this.pb = new PocketBase(pbUrl);
 
     // PocketBase automatically handles auth persistence via localStorage
     // No manual cookie loading needed - it's handled internally

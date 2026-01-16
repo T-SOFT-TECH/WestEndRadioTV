@@ -1,9 +1,8 @@
 export const environment = {
     production: true,
     pocketbase: {
-        // Browser uses same origin, SSR uses internal Docker network
-        browserUrl: '',  // Same origin for browser
-        serverUrl: 'http://pocketbase:8090'  // Internal Docker network for SSR
+        // Use same origin - PocketBase is proxied at the same domain by VPS Panel
+        url: ''
     },
     azuracast: {
         url: 'https://tsoft.stream',

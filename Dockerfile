@@ -12,27 +12,22 @@ RUN npm ci --legacy-peer-deps
 # Copy source code
 COPY . .
 
-# Build the Angular SSR app
+# Build the Angular app (SPA mode, no SSR)
 RUN npm run build
 
-# Production stage
+# Production stage - serve static files
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Copy the built application
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
+# Install serve to host static files
+RUN npm install -g serve
 
-# Install only production dependencies
-RUN npm ci --omit=dev --legacy-peer-deps
+# Copy the built browser files
+COPY --from=builder /app/dist/westendradiotv-v2/browser ./dist
 
 # Expose the port
 EXPOSE 3000
 
-# Set environment variables
-ENV PORT=3000
-ENV NODE_ENV=production
-
-# Start the SSR server
-CMD ["node", "dist/westendradiotv-v2/server/server.mjs"]
+# Serve the static files with SPA fallback
+CMD ["serve", "-s", "dist", "-l", "3000"]
