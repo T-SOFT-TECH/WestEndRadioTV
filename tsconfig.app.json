@@ -19,8 +19,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    ".runtime",
-    ".runtime/**/*",
     "backend",
     ".angular"
   ]

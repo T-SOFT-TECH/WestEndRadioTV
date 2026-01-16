@@ -1,8 +1,0 @@
-node_modules
-dist
-.git
-Dockerfile
-README.md
-.dockerignore
-.runtime
-.angular
