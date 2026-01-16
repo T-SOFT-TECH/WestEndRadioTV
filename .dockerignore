@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+.angular
+
+# Runtime directory (created by VPS Panel)
+.runtime
+
+# Backend (handled separately)
+backend
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+
+# Logs
+*.log
+
+# Local env files
+.env
+.env.local
+.env*.local
